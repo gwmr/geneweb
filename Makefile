@@ -36,13 +36,6 @@ api::
 	cd gwb2ged; $(MAKE) opt
 	cd setup; $(MAKE) opt
 	cd gwtp; $(MAKE) opt
-	cd contrib/gwpublic; $(MAKE)
-	cd contrib/oneshot; $(MAKE)
-	cd contrib/misc; $(MAKE)
-#	cd contrib/dicoplace; $(MAKE)
-	cd contrib/gwFix; $(MAKE) opt
-	cd contrib/history; $(MAKE)
-	cd contrib/wrap; $(MAKE)
 	cd api; $(MAKE) opt
 
 install:
