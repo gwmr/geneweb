@@ -599,29 +599,31 @@ value max_ancestor_level conf base ip max_lev =
               loop (succ level) (get_mother cpl)
             }
         | _ ->
-            (* lia *)
-            let rec loop_lia level (ip, base_prefix) = do {
-              x.val := max x.val level;
-              if x.val = max_lev then ()
-              else
-                match Perso_link.get_parents_link base_prefix ip with
-                [ Some family ->
-                    do {
-                      let (ifath, imoth, base_prefix) =
-                        (Adef.iper_of_int (Int32.to_int family.MLink.Family.ifath),
-                         Adef.iper_of_int (Int32.to_int family.MLink.Family.imoth),
-                         family.MLink.Family.baseprefix)
-                      in
-                      match Perso_link.get_person_link base_prefix ifath with
-                      [ Some fath -> loop_lia (succ level) (ifath, base_prefix)
-                      | None -> ()];
-                      match Perso_link.get_person_link base_prefix imoth with
-                      [ Some fath -> loop_lia (succ level) (imoth, base_prefix)
-                      | None -> ()]
-                    }
-                | None -> () ]}
-            in
-            loop_lia level (ip, conf.bname) ]
+            IFDEF API THEN
+              (* lia *)
+              let rec loop_lia level (ip, base_prefix) = do {
+                x.val := max x.val level;
+                if x.val = max_lev then ()
+                else
+                  match Perso_link.get_parents_link base_prefix ip with
+                  [ Some family ->
+                      do {
+                        let (ifath, imoth, base_prefix) =
+                          (Adef.iper_of_int (Int32.to_int family.MLink.Family.ifath),
+                           Adef.iper_of_int (Int32.to_int family.MLink.Family.imoth),
+                           family.MLink.Family.baseprefix)
+                        in
+                        match Perso_link.get_person_link base_prefix ifath with
+                        [ Some fath -> loop_lia (succ level) (ifath, base_prefix)
+                        | None -> ()];
+                        match Perso_link.get_person_link base_prefix imoth with
+                        [ Some fath -> loop_lia (succ level) (imoth, base_prefix)
+                        | None -> ()]
+                      }
+                  | None -> () ]}
+              in
+              loop_lia level (ip, conf.bname)
+            ELSE () END ]
     }
   in
   do { loop 0 ip; x.val }
@@ -953,6 +955,7 @@ value tree_generation_list conf base gv p =
                  | (None, Some m) -> [Cell m fo Alone True 1 base_prefix :: list]
                  | (None, None) -> [Empty :: list] ]
              | _ ->
+                 IFDEF API THEN
                  match Perso_link.get_parents_link base_prefix (get_key_index p) with
                  [ Some family ->
                      let (ifath, imoth, ifam) =
@@ -999,7 +1002,8 @@ value tree_generation_list conf base gv p =
                          [ Some f -> [Cell f fo Alone True 1 base_prefix :: list]
                          | None -> [Empty :: list] ]
                      | (None, None) -> [Empty :: list] ]
-                 | None -> [Empty :: list] ] ] ])
+                 | None -> [Empty :: list] ]
+                 ELSE [Empty :: list] END ] ])
       pol []
   in
   let gen =
@@ -2309,13 +2313,15 @@ and eval_compound_var conf base env ((a, _) as ep) loc =
           let ep = make_ep conf base (get_father cpl) in
           eval_person_field_var conf base env ep loc sl
       | None ->
+          IFDEF API THEN
           match Perso_link.get_father_link conf.command (get_key_index a) with
           [ Some fath ->
               let ep = Perso_link.make_ep_link conf base fath in
               let conf = {(conf) with command = fath.MLink.Person.baseprefix} in
               let env = [("p_link", Vbool True) :: env] in
               eval_person_field_var conf base env ep loc sl
-          | None -> warning_use_has_parents_before_parent loc "father" (str_val "")] ]
+          | None -> warning_use_has_parents_before_parent loc "father" (str_val "")]
+          ELSE warning_use_has_parents_before_parent loc "father" (str_val "") END ]
   | ["item" :: sl] ->
       match get_env "item" env with
       [ Vslistlm ell -> eval_item_field_var env ell sl
@@ -2327,13 +2333,15 @@ and eval_compound_var conf base env ((a, _) as ep) loc =
           let ep = make_ep conf base (get_mother cpl) in
           eval_person_field_var conf base env ep loc sl
       | None ->
+          IFDEF API THEN
           match Perso_link.get_mother_link conf.command (get_key_index a) with
           [ Some moth ->
               let ep = Perso_link.make_ep_link conf base moth in
               let conf = {(conf) with command = moth.MLink.Person.baseprefix} in
               let env = [("p_link", Vbool True) :: env] in
               eval_person_field_var conf base env ep loc sl
-          | None -> warning_use_has_parents_before_parent loc "mother" (str_val "")] ]
+          | None -> warning_use_has_parents_before_parent loc "mother" (str_val "")]
+          ELSE warning_use_has_parents_before_parent loc "mother" (str_val "") END ]
   | ["next_item" :: sl] ->
       match get_env "item" env with
       [ Vslistlm [_ :: ell] -> eval_item_field_var env ell sl
