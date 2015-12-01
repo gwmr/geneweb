@@ -21,21 +21,19 @@ value map_pers_event fp fs e =
   let epers_name =
     match e.epers_name with
     [ Epers_Birth | Epers_Baptism | Epers_Death | Epers_Burial | Epers_Cremation
-    | Epers_Accomplishment | Epers_Acquisition | Epers_Adhesion
-    | Epers_BaptismLDS | Epers_BarMitzvah | Epers_BatMitzvah | Epers_Benediction
-    | Epers_ChangeName | Epers_Circumcision | Epers_Confirmation
-    | Epers_ConfirmationLDS | Epers_Decoration | Epers_DemobilisationMilitaire
-    | Epers_Diploma | Epers_Distinction | Epers_Dotation | Epers_DotationLDS
-    | Epers_Education | Epers_Election | Epers_Emigration | Epers_Excommunication
-    | Epers_FamilyLinkLDS | Epers_FirstCommunion | Epers_Funeral | Epers_Graduate
+    | Epers_Acquisition | Epers_Adhesion | Epers_BarMitzvah | Epers_BatMitzvah
+    | Epers_Benediction | Epers_ChangeName | Epers_Circumcision
+    | Epers_Confirmation | Epers_Decoration | Epers_DemobilisationMilitaire
+    | Epers_Diploma | Epers_Distinction | Epers_Dotation | Epers_Education
+    | Epers_Election | Epers_Emigration | Epers_Excommunication
+    | Epers_FirstCommunion | Epers_Funeral | Epers_Graduate
     | Epers_Hospitalisation | Epers_Illness | Epers_Immigration
     | Epers_ListePassenger | Epers_MilitaryDistinction | Epers_MilitaryPromotion
     | Epers_MilitaryService | Epers_MobilisationMilitaire | Epers_Naturalisation
-    | Epers_Occupation | Epers_Ordination | Epers_Property | Epers_Recensement
-    | Epers_Residence | Epers_Retired | Epers_ScellentChildLDS
-    | Epers_ScellentParentLDS | Epers_ScellentSpouseLDS | Epers_VenteBien
-    | Epers_Will as evt -> evt
-    | Epers_Name s -> Epers_Name (fs s) ]
+    | Epers_Ordination | Epers_Property | Epers_Recensement | Epers_Residence
+    | Epers_Retired | Epers_VenteBien | Epers_Will as evt -> evt
+    | Epers_Occupation s -> Epers_Occupation (fs s)
+    | Epers_Name s -> Epers_Occupation (fs s) ]
   in
   let epers_date = e.epers_date in
   let epers_place = fs e.epers_place in
@@ -94,13 +92,22 @@ value map_person_ps fp fs p =
    related = p.related; aliases = List.map fs p.aliases;
    occupation = fs p.occupation; sex = p.sex; access = p.access;
    birth = p.birth; birth_place = fs p.birth_place;
+   birth_reason = fs p.birth_reason;
    birth_note = fs p.birth_note; birth_src = fs p.birth_src;
+   birth_witnesses = Array.map (fun (p, w) -> (fp p, w)) p.birth_witnesses;
    baptism = p.baptism; baptism_place = fs p.baptism_place;
+   baptism_reason = fs p.baptism_reason;
    baptism_note = fs p.baptism_note; baptism_src = fs p.baptism_src;
+   baptism_witnesses = Array.map (fun (p, w) -> (fp p, w)) p.baptism_witnesses;
    death = p.death; death_place = fs p.death_place;
-   death_note = fs p.death_note; death_src = fs p.death_src; burial = p.burial;
-   burial_place = fs p.burial_place; burial_note = fs p.burial_note;
+   death_reason = fs p.death_reason;
+   death_note = fs p.death_note; death_src = fs p.death_src;
+   death_witnesses = Array.map (fun (p, w) -> (fp p, w)) p.death_witnesses;
+   burial = p.burial;
+   burial_place = fs p.burial_place; burial_reason = fs p.burial_reason;
+   burial_note = fs p.burial_note;
    burial_src = fs p.burial_src;
+   burial_witnesses = Array.map (fun (p, w) -> (fp p, w)) p.burial_witnesses;
    pevents = List.map (map_pers_event fp fs) p.pevents;
    notes = fs p.notes; psources = fs p.psources; key_index = p.key_index}
 ;
@@ -109,7 +116,9 @@ value map_union_f ff u = {family = Array.map ff u.family};
 
 value map_family_ps fp fs fam =
   {marriage = fam.marriage; marriage_place = fs fam.marriage_place;
+   marriage_reason = fs fam.marriage_reason;
    marriage_note = fs fam.marriage_note; marriage_src = fs fam.marriage_src;
+   marriage_witnesses = Array.map (fun (p, w) -> (fp p, w)) fam.marriage_witnesses;
    witnesses = Array.map fp fam.witnesses; relation = fam.relation;
    divorce = fam.divorce;
    fevents = List.map (map_fam_event fp fs) fam.fevents;
