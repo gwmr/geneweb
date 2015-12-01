@@ -71,20 +71,18 @@ type witness_kind =
 
 type gen_pers_event_name 'string =
   [ Epers_Birth | Epers_Baptism | Epers_Death | Epers_Burial | Epers_Cremation
-  | Epers_Accomplishment | Epers_Acquisition | Epers_Adhesion
-  | Epers_BaptismLDS | Epers_BarMitzvah | Epers_BatMitzvah | Epers_Benediction
-  | Epers_ChangeName | Epers_Circumcision | Epers_Confirmation
-  | Epers_ConfirmationLDS | Epers_Decoration | Epers_DemobilisationMilitaire
-  | Epers_Diploma | Epers_Distinction | Epers_Dotation | Epers_DotationLDS
-  | Epers_Education | Epers_Election | Epers_Emigration | Epers_Excommunication
-  | Epers_FamilyLinkLDS | Epers_FirstCommunion | Epers_Funeral | Epers_Graduate
+  | Epers_Acquisition | Epers_Adhesion | Epers_BarMitzvah | Epers_BatMitzvah
+  | Epers_Benediction | Epers_ChangeName | Epers_Circumcision
+  | Epers_Confirmation | Epers_Decoration | Epers_DemobilisationMilitaire
+  | Epers_Diploma | Epers_Distinction | Epers_Dotation | Epers_Education
+  | Epers_Election | Epers_Emigration | Epers_Excommunication
+  | Epers_FirstCommunion | Epers_Funeral | Epers_Graduate
   | Epers_Hospitalisation | Epers_Illness | Epers_Immigration
   | Epers_ListePassenger | Epers_MilitaryDistinction | Epers_MilitaryPromotion
   | Epers_MilitaryService | Epers_MobilisationMilitaire | Epers_Naturalisation
-  | Epers_Occupation | Epers_Ordination | Epers_Property | Epers_Recensement
-  | Epers_Residence | Epers_Retired | Epers_ScellentChildLDS
-  | Epers_ScellentParentLDS | Epers_ScellentSpouseLDS | Epers_VenteBien
-  | Epers_Will
+  | Epers_Ordination | Epers_Property | Epers_Recensement | Epers_Residence
+  | Epers_Retired | Epers_VenteBien | Epers_Will
+  | Epers_Occupation of 'string
   | Epers_Name of 'string ]
 ;
 type gen_pers_event 'person 'string =
@@ -159,20 +157,28 @@ type gen_person 'person 'string =
     access : access;
     birth : codate;
     birth_place : 'string;
+    birth_reason : 'string;
     birth_note : 'string;
     birth_src : 'string;
+    birth_witnesses : array ('person * witness_kind);
     baptism : codate;
     baptism_place : 'string;
+    baptism_reason : 'string;
     baptism_note : 'string;
     baptism_src : 'string;
+    baptism_witnesses : array ('person * witness_kind);
     death : death;
     death_place : 'string;
+    death_reason : 'string;
     death_note : 'string;
     death_src : 'string;
+    death_witnesses : array ('person * witness_kind);
     burial : burial;
     burial_place : 'string;
+    burial_reason : 'string;
     burial_note : 'string;
     burial_src : 'string;
+    burial_witnesses : array ('person * witness_kind);
     pevents : list (gen_pers_event 'person 'string);
     notes : 'string;
     psources : 'string;
@@ -194,8 +200,10 @@ type gen_union 'family =
 type gen_family 'person 'string =
   { marriage : codate;
     marriage_place : 'string;
+    marriage_reason : 'string;
     marriage_note : 'string;
     marriage_src : 'string;
+    marriage_witnesses : array ('person * witness_kind);
     witnesses : array 'person;
     relation : relation_kind;
     divorce : divorce;
