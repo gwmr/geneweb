@@ -519,11 +519,9 @@ value get_pevent_name str l =
   | ["#deat" :: l'] -> (Epers_Death, l')
   | ["#buri" :: l'] -> (Epers_Burial, l')
   | ["#crem" :: l'] -> (Epers_Cremation, l')
-  | ["#acco" :: l'] -> (Epers_Accomplishment, l')
   | ["#acqu" :: l'] -> (Epers_Acquisition, l')
   | ["#adhe" :: l'] -> (Epers_Adhesion, l')
   | ["#awar" :: l'] -> (Epers_Decoration, l')
-  | ["#bapl" :: l'] -> (Epers_BaptismLDS, l')
   | ["#barm" :: l'] -> (Epers_BarMitzvah, l')
   | ["#basm" :: l'] -> (Epers_BatMitzvah, l')
   | ["#bles" :: l'] -> (Epers_Benediction, l')
@@ -531,18 +529,15 @@ value get_pevent_name str l =
   | ["#chgn" :: l'] -> (Epers_ChangeName, l')
   | ["#circ" :: l'] -> (Epers_Circumcision, l')
   | ["#conf" :: l'] -> (Epers_Confirmation, l')
-  | ["#conl" :: l'] -> (Epers_ConfirmationLDS, l')
   | ["#degr" :: l'] -> (Epers_Diploma, l')
   | ["#demm" :: l'] -> (Epers_DemobilisationMilitaire, l')
   | ["#dist" :: l'] -> (Epers_Distinction, l')
-  | ["#dotl" :: l'] -> (Epers_DotationLDS, l')
   | ["#educ" :: l'] -> (Epers_Education, l')
   | ["#elec" :: l'] -> (Epers_Election, l')
   | ["#emig" :: l'] -> (Epers_Emigration, l')
   | ["#endl" :: l'] -> (Epers_Dotation, l')
   | ["#exco" :: l'] -> (Epers_Excommunication, l')
   | ["#fcom" :: l'] -> (Epers_FirstCommunion, l')
-  | ["#flkl" :: l'] -> (Epers_FamilyLinkLDS, l')
   | ["#fune" :: l'] -> (Epers_Funeral, l')
   | ["#grad" :: l'] -> (Epers_Graduate, l')
   | ["#hosp" :: l'] -> (Epers_Hospitalisation, l')
@@ -554,14 +549,11 @@ value get_pevent_name str l =
   | ["#mpro" :: l'] -> (Epers_MilitaryPromotion, l')
   | ["#mser" :: l'] -> (Epers_MilitaryService, l')
   | ["#natu" :: l'] -> (Epers_Naturalisation, l')
-  | ["#occu" :: l'] -> (Epers_Occupation, l')
+  | ["#occu" :: l'] -> (Epers_Occupation "", l') (* TODO *)
   | ["#ordn" :: l'] -> (Epers_Ordination, l')
   | ["#prop" :: l'] -> (Epers_Property, l')
   | ["#resi" :: l'] -> (Epers_Residence, l')
   | ["#reti" :: l'] -> (Epers_Retired, l')
-  | ["#slgc" :: l'] -> (Epers_ScellentChildLDS, l')
-  | ["#slgp" :: l'] -> (Epers_ScellentParentLDS, l')
-  | ["#slgs" :: l'] -> (Epers_ScellentSpouseLDS, l')
   | ["#vteb" :: l'] -> (Epers_VenteBien, l')
   | ["#will" :: l'] -> (Epers_Will, l')
   | [s :: l'] ->
@@ -671,10 +663,15 @@ value create_person () =
    qualifiers = []; aliases = []; first_names_aliases = [];
    surnames_aliases = []; titles = []; rparents = []; related = [];
    occupation = ""; sex = Neuter; access = IfTitles; birth = Adef.codate_None;
-   birth_place = ""; birth_note = ""; birth_src = ""; baptism = Adef.codate_None;
-   baptism_place = ""; baptism_note = ""; baptism_src = "";
-   death = DontKnowIfDead; death_place = ""; death_note = ""; death_src = "";
-   burial = UnknownBurial; burial_place = ""; burial_note = ""; burial_src = "";
+   birth_place = ""; birth_reason = "";
+   birth_note = ""; birth_src = ""; birth_witnesses = [| |];
+   baptism = Adef.codate_None;
+   baptism_place = ""; baptism_reason = ""; baptism_note = ""; baptism_src = "";
+   baptism_witnesses = [| |];
+   death = DontKnowIfDead; death_place = ""; death_reason = "";
+   death_note = ""; death_src = ""; death_witnesses = [| |];
+   burial = UnknownBurial; burial_place = ""; burial_reason = "";
+   burial_note = ""; burial_src = ""; burial_witnesses = [| |];
    pevents = []; notes = ""; psources = ""; key_index = Adef.iper_of_int (-1)}
 ;
 
@@ -693,8 +690,10 @@ value set_infos fn sn occ sex comm_psources comm_birth_place str u l =
   let (psources, l) = get_sources str l in
   let (naissance, l) = get_optional_birthdate l in
   let (birth_place, l) = get_field "#bp" l in
+  let (birth_reason, l) = get_field "#br" l in
   let (birth_note, l) = get_field "#bn" l in
   let (birth_src, l) = get_field "#bs" l in
+  let (birth_witnesses, l) = get_field "#bw" l in
   let (baptism, l) = get_optional_baptdate l in
   let (baptism_place, l) =
     let (pp, l) = get_field "#pp" l in
@@ -738,11 +737,15 @@ value set_infos fn sn occ sex comm_psources comm_birth_place str u l =
      psources = if psources <> "" then psources else comm_psources;
      birth = naissance;
      birth_place = if birth_place <> "" then birth_place else comm_birth_place;
+     birth_reason = birth_reason;
      birth_note = birth_note; birth_src = birth_src; baptism = baptism;
      baptism_place = baptism_place; baptism_note = bapt_note;
+     baptism_reason = baptism_reason;
      baptism_src = bapt_src; death = mort; death_place = death_place;
+     birth_reason = death_reason;
      death_note = death_note; death_src = death_src; burial = burial;
      burial_place = burial_place; burial_note = burial_note;
+     birth_reason = burial_reason;
      burial_src = burial_src; pevents = u.pevents}
   in
   (u, l)
