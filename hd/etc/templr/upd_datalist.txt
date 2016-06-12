@@ -1,0 +1,104 @@
+<!-- $Id: upd_datalist.txt,v 7.00 2016/01/26 10:48:13 mr Exp $ -->
+
+%define;dlist(z1)
+  <datalist id="dlz1">
+  <option id="oz1">0
+    %if;(bvar.datalist_z1 = 1)
+      <script type=text/javascript>$("#dlz1").delay(2000).load("%prefix;m=MOD_DATA;data=z1;datalist=on");</script>
+    %end;
+  </datalist>
+%end;
+
+%apply;dlist("fn")
+%apply;dlist("occu")
+%apply;dlist("place")
+%apply;dlist("sn")
+%apply;dlist("src")
+
+<datalist id="dlmonth">
+  <option value=VD label="[(french revolution month)]0 VD">
+  <option value=BR label="[(french revolution month)]1 BR">
+  <option value=FM label="[(french revolution month)]2 FM">
+  <option value=NI label="[(french revolution month)]3 NI">
+  <option value=PL label="[(french revolution month)]4 PL">
+  <option value=VT label="[(french revolution month)]5 VT">
+  <option value=GE label="[(french revolution month)]6 GE">
+  <option value=FL label="[(french revolution month)]7 FL">
+  <option value=PR label="[(french revolution month)]8 PR">
+  <option value=ME label="[(french revolution month)]9 ME">
+  <option value=TH label="[(french revolution month)]10 TH">
+  <option value=FT label="[(french revolution month)]11 FT">
+  <option value=JC label="[(french revolution month)]12 JC">
+</datalist>%nl;
+
+%if;(evar_m = "MOD_IND" or evar_m = "MOD_IND_OK" or evar_m = "MRG_IND_OK" or evar_m = "MRG_MOD_IND_OK")
+  <datalist id="dlevent" name="dlevent">
+    <option value="-">
+    <option id="#birt" value="[*birth]">
+    <option id="#bapt" value="[*baptism]">
+    <option id="#deat" value="[*death]">
+    <option id="#buri" value="[*burial]">
+    <option id="#crem" value="[*cremation]">
+    <option id="#acco" value="[*accomplishment]">
+    <option id="#acqu" value="[*acquisition]">
+    <option id="#adhe" value="[*adhesion]">
+    <option id="#bapl" value="[*baptismLDS]">
+    <option id="#barm" value="[*bar mitzvah]">
+    <option id="#basm" value="[*bat mitzvah]">
+    <option id="#bles" value="[*benediction]">
+    <option id="#chgn" value="[*change name]">
+    <option id="#circ" value="[*circumcision]">
+    <option id="#conf" value="[*confirmation]">
+    <option id="#conl" value="[*confirmation LDS]">
+    <option id="#awar" value="[*decoration]">
+    <option id="#demm" value="[*demobilisationMilitaire]">
+    <option id="#degr" value="[*diploma]">
+    <option id="#dist" value="[*distinction]">
+    <option id="#dotl" value="[*dotation]">
+    <option id="#endl" value="[*dotationLDS]">
+    <option id="#educ" value="[*education]">
+    <option id="#elec" value="[*election]">
+    <option id="#emig" value="[*emigration]">
+    <option id="#exco" value="[*excommunication]">
+    <option id="#flkl" value="[*familyLinkLDS]">
+    <option id="#fcom" value="[*firstCommunion]">
+    <option id="#fune" value="[*funeral]">
+    <option id="#grad" value="[*graduate]">
+    <option id="#hosp" value="[*hospitalisation]">
+    <option id="#illn" value="[*illness]">
+    <option id="#immi" value="[*immigration]">
+    <option id="#lpas" value="[*listePassenger]">
+    <option id="#mdis" value="[*militaryDistinction]">
+    <option id="#mpro" value="[*militaryPromotion]">
+    <option id="#mser" value="[*militaryService]">
+    <option id="#mobm" value="[*mobilisationMilitaire]">
+    <option id="#natu" value="[*naturalisation]">
+    <option id="#occu" value="[*occupation/occupations]0">
+    <option id="#ordn" value="[*ordination]">
+    <option id="#prop" value="[*property]">
+    <option id="#cens" value="[*recensement]">
+    <option id="#resi" value="[*residence]">
+    <option id="#reti" value="[*retired]">
+    <option id="#slgc" value="[*scellentChildLDS]">
+    <option id="#slgp" value="[*scellentParentLDS]">
+    <option id="#slgs" value="[*scellentSpouseLDS]">
+    <option id="#vteb" value="[*venteBien]">
+    <option id="#will" value="[*will]">
+  </datalist>%nl;
+%else;
+  <datalist id="dlevent" name="dlevent">
+    <option value="-">
+    <option id="#marr" value="[*marriage event]">
+    <option id="#nmar" value="[*no marriage event]">
+    <option id="#nmen" value="[*no mention]">
+    <option id="#enga" value="[*engage event]">
+    <option id="#div" value="[*divorce event]">
+    <option id="#sep" value="[*separate event]">
+    <option id="#anul" value="[*annulation]">
+    <option id="#marb" value="[*marriage bann]">
+    <option id="#marc" value="[*marriage contract]">
+    <option id="#marl" value="[*marriage licence]">
+    <option id="#pacs" value="[*PACS]">
+    <option id="#resi" value="[*residence]">
+  </datalist>%nl;
+%end;%nl;

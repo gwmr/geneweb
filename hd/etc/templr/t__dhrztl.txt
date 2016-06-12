@@ -1,0 +1,179 @@
+
+%include.inc_head;
+<!-- $Id: t__dhrztl.txt,v 7.00 2016/05/05 21:51:48 mr Exp $ -->
+</head>
+
+%let;l_v;%if;(evar.v != "")%evar.v;%else;5%end;%in;
+%let;l_url1;%prefix;v=%l_v;;cgl=%evar.cgl;;o2=%evar.o2;;o3=%evar.o3;;o4=%evar.o4;;o5=%evar.o5;;o6=%evar.o6;;o7=%evar.o7;;%in;
+%let;l_urla;%l_url1;t=ahrztl;%in;
+%let;l_urld;%l_url1;t=dhrztl;%in;
+
+%define;body1()
+  %message_to_wizard;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      [*descendants]
+    %and;
+      %self; %dates;
+    %end;
+  </h1>
+%end;
+
+%define;body2()
+  %if;not cancel_links;
+    %include.t__menubar;
+    %base_trailer;
+    %copyright;
+  %end;
+%end;
+
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <form name="tools" method="get" action="%action;">
+    <div>
+      <label>[*generation/generations]1 <input id="v" name="v" type="number" class="number" size="1" value="%l_v;"
+        autocomplete="off" placeholder="1" autofocus="on" %laX; %/></label>
+    </div>
+    <div class="s_menu">
+      %hidden;
+      <input type="hidden" name="t" value="%evar.t;"%/>
+      <input type="hidden" name="t1" value="%evar.t1;"%/>
+      %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+        <input type="hidden" name="p" value="%evar.p;"%/>
+        <input type="hidden" name="n" value="%evar.n;"%/>
+        <input type="hidden" name="oc" value="%evar.oc;"%/>
+      %end;
+      %if;(evar.i != "")
+        <input type="hidden" name="i" value="%evar.i;"%/>
+      %end;
+      <label><input type="checkbox" name="cgl" value="on" %l_on;
+        %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+      <input type="hidden" name="o2" value="%evar.o2;"%/>
+      <input type="hidden" name="o3" value="%evar.o3;"%/>
+      <input type="hidden" name="o4" value="%evar.o4;"%/>
+      <input type="hidden" name="o5" value="%evar.o5;"%/>
+      <input type="hidden" name="o6" value="%evar.o6;"%/>
+      <input type="hidden" name="o7" value="%evar.o7;"%/>
+      <input type="submit" value="Ok"%/>
+    </div>
+  </form>
+  %if;(has_parents)
+    <span>
+      <a href="%l_urla;i=%index;" title="[*ancestors]">&uarr;&uarr;</a>
+    </span>
+  %end;
+%end;
+
+%define;letter(z1)
+  %apply;nth%with;
+    /a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z
+  %and;z1%end;
+%end;
+
+%define;desc1(z1,z2,z3,z4,curlev,maxlev)
+  %let;l1;%if;(z3z4 = "00" or z3z4 = "01")  ¦%else;   %end;%in;
+  %let;l2;
+    %if;(curlev != 0)
+      %if;(z2 = 0)
+        %if;(z4 = 1)%l1;└%elseif;(z4 = 0)%l1;├%end;%if;(child_cnt < 10)─%end;%nn;
+      %else;
+        %if;(z4 = 1)%l1;╚%elseif;(z4 = 0)%l1;╠%end;%if;(child_cnt < 10)═%end;%nn;
+      %end;
+    %end;
+  %in;
+  %let;zl1;
+    %if;(curlev != 0)
+      %if;(z2 = 0)
+        %if;(z4 = 1)z1%l1; %else;z1%l1;│%end;
+      %else;
+        %if;(z4 = 1)z1%l1; %else;z1%l1;║%end;
+      %end;
+    %end;
+  %in;
+  %let;zl2;%sex;%in;
+  %if;(has_families)
+    %let;l21;
+      %if;(curlev != 0)
+        %if;(not cancel_links)
+          <a href="%l_urld;i=%index;">%child_cnt;</a>%nn;
+        %else;
+          %child_cnt;%nn;
+        %end;
+      %end;
+    %in;
+    %let;l22;
+      %if;(browsing_with_sosa_ref and has_sosa)
+        %if;(has_siblings)▶%else;▷%end;
+      %end;
+    %in;
+    %foreach;family;
+      %let;zl3;%if;(family_cnt = nb_families)1%else;0%end;%in;
+      %if;(nb_families > 1)
+        %let;l3;
+          %if;(curlev != 0 and family_cnt > 1)
+            %if;(z2 = 0)
+              %if;(z4 = 1)%l1; %elseif;(z4 = 0)%l1;│%end;%if;(child_cnt <10) %end;%child_cnt;%nn;
+            %else;
+              %if;(z4 = 1)%l1; %elseif;(z4 = 0)%l1;║%end;%if;(child_cnt <10) %end;%child_cnt;%nn;
+            %end;
+          %else;
+            %l2;%l21;%nn;
+          %end;
+        %in;
+        <tt>z1%l3;%apply;letter(family_cnt)%if;(is_male)%if;(curlev < maxlev and has_children)┬%else;─%end;%else;%if;(curlev < maxlev and has_children)╦%else;═%end;%end;%l22;</tt>
+      %else;
+        <tt>z1%l2;%l21;%if;(is_male)─%if;(curlev < maxlev and has_children)┬%else;─%end;%else;═%if;(curlev < maxlev and has_children)╦%else;═%end;%end;%l22;</tt>
+      %end;
+      %if;(family_cnt > 1)
+        %self;%nn;
+      %elseif;(not cancel_links)
+        <a href="%prefix;i=%index;">%self;</a>%self.title; %dates;%nn;
+      %else;
+        %self;%self.title; %dates;%nn;
+      %end;
+      %sp;&amp;%if;(on_marriage_date != "")<small>%marriage_date.prec;%marriage_date.year;</small>%end;%sp;
+      %if;(not cancel_links)
+        <a href="%prefix;i=%spouse.index;">%spouse;</a> %spouse.dates;<br%/>
+      %else;
+        %spouse; %spouse.dates;<br%/>
+      %end;
+      %if;(curlev < maxlev)
+        %if;has_children;
+          %foreach;child;
+            %let;zl4;%if;(child_cnt = nb_children)1%else;0%end;%in;
+            %apply;desc1(zl1,zl2,zl3,zl4,curlev+1,maxlev)
+          %end;
+        %end;
+      %end;
+    %end;
+  %else;
+    %let;l23;
+      %if;(curlev != 0)
+        %if;(not cancel_links)
+          <a href="%l_urla;i=%index;">%child_cnt;</a>%nn;
+        %else;
+          %child_cnt;%nn;
+        %end;
+      %end;
+    %in;
+    %let;l24;
+      %if;(browsing_with_sosa_ref and has_sosa)
+        %if;(has_siblings)◀%else;◁%end;
+      %end;
+    %in;
+    <tt>z1%l2;%l23;%if;(is_male)──%elseif(is_female)══%else;◦◦%end;%l24;</tt>
+    %if;(not cancel_links)
+      <a href="%prefix;i=%index;">%self;</a> %dates;<br%/>
+    %else;
+      %self; %dates;<br%/>
+    %end;
+  %end;
+%end;
+
+%( main %)
+<body%body_prop; id="deslist">
+  %apply;body1()
+  <p style="line-height:12pt;font-size:12pt;">%apply;desc1(" 0",sex,"","",0,l_v)</p>
+  %apply;body2()
+</body>
+</html>

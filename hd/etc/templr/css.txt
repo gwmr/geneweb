@@ -1,0 +1,21 @@
+<!-- $Id: css.txt,v 7.00 2016/05/03 09:38:53 mr Exp $ -->
+
+<link type="text/css" href="%bvar.static_path;/templr/css%bvar.css;.css" media="all" rel="stylesheet" %/>
+
+<script type="text/javascript" src="%bvar.static_path;/templr/js.js"></script>
+%if;(bvar.uppercase = "yes")
+  <script type="text/javascript">
+  <!--
+    %if;(bvar.uppercase = "yes")
+      %if;(bvar.particles != "")
+        var p_a = new Array(%bvar.particles;);
+      %else;
+        var p_a = new Array("AF","AV","D","DAL","DE","DEN","DES","DI","DU","OF","UND","VAN","VON","ZU","ZUR");
+      %end;
+    %end;
+  -->
+  </script>
+  <script type="text/javascript" src="%bvar.static_path;/templr/js_uppercase.js"></script>
+%else;
+  <script type="text/javascript" src="%bvar.static_path;/templr/js_uppercase_no.js"></script>
+%end;

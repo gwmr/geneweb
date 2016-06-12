@@ -1,0 +1,55 @@
+<!-- $Id: imp_fam7.txt,v 7.00 2016/05/02 11:39:08 mr Exp $ -->
+
+%let;birth_symbol;%if;(bvar.birth_symbol != "")%bvar.birth_symbol;%else;&deg;%end;%in;
+%let;death_symbol;%if;(bvar.death_symbol != "")%bvar.death_symbol;%else;&dagger;%end;%in;
+%let;l_v;%if;(evar.v != "" and evar.v < 5)%evar.v;%else;3%end;%in;
+%let;l_url1;%prefix;t=%evar.t;;cousins=%evar.cousins;;spouse=%evar.spouse;;v=%l_v;;%in;
+
+%define;body1()
+  %message_to_wizard;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      7 [family/families]1
+    %and;
+      %self; %dates;
+    %end;
+  </h1>
+%end;
+
+%define;body2()
+  %if;not cancel_links;
+    %include.t__menubar;
+    %base_trailer;
+    %copyright;
+  %end;
+%end;
+
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <form name="tools" method="get" action="%action;">
+    <div>
+      <label>[*generation/generations]1 <input id="v" name="v" type="number" class="number" size="1" value="%l_v;"
+        autocomplete="off" placeholder="1" autofocus="on" %laX; %/></label>
+    </div>
+    <div class="s_menu">
+      %hidden;
+      <input type="hidden" name="t" value="%evar.t;"%/>
+      <input type="hidden" name="t1" value="%evar.t1;"%/>
+      %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+        <input type="hidden" name="p" value="%evar.p;"%/>
+        <input type="hidden" name="n" value="%evar.n;"%/>
+        <input type="hidden" name="oc" value="%evar.oc;"%/>
+      %end;
+      %if;(evar.i != "")
+        <input type="hidden" name="i" value="%evar.i;"%/>
+      %end;
+      <label><input type="checkbox" name="cgl" value="on" %l_on;
+        %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+      <label><input type="checkbox" name="spouse" value="on" %l_on;
+        %if;(evar.spouse = "on") checked="checked"%end;%/>[spouse/spouses]1</label>
+      <label><input type="checkbox" name="cousins" value="on" %l_on;
+        %if;(evar.cousins = "on") checked="checked"%end;%/>[cousins]</label>
+      <input type="submit" value="Ok"%/>
+    </div>
+  </form>
+%end;

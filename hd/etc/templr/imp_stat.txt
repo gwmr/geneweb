@@ -1,0 +1,158 @@
+<!-- $Id: imp_stat.txt,v 7.00 2016/04/23 10:42:34 mr Exp $ -->
+
+%let;birth_symbol;%if;(bvar.birth_symbol != "")%bvar.birth_symbol;%else;&deg;%end;%in;
+%let;death_symbol;%if;(bvar.death_symbol != "")%bvar.death_symbol;%else;&dagger;%end;%in;
+%let;l_v;%if;(evar.v != "")%evar.v;%else;7%end;%in;
+%let;l_url1;%prefix;%access;;v=%l_v;;%if;(evar.t1 = "A")only=%evar.only;;t1=A;%end;%in;
+%let;l_max_dates;%if;(bvar.max_dates != "")%bvar.max_dates;%else;200%end;%in;
+%let;l_max_width;180%in;
+
+%define;body1()
+  %message_to_wizard;
+  %if;(not cancel_links)
+    <div class="menu1">      
+      <a href="%l_url1;t=cal">[calendar/calendars]0</a>%nn;
+      <a href="%l_url1;t=bmdm">[year/month/day]1</a>%nn;
+      <a href="%l_url1;t=afm">[age] ([father/mother]0, [father/mother]1)</a>%nn;
+      <a href="%l_url1;t=aax">[age at %s birth date:::x]</a>%nn;
+      <a href="%l_url1;t=aad">[age at death]</a>%nn;
+      <a href="%l_url1;t=nxd">[year/month/day]0 [death] - [year/month/day]0 [death] x</a>%nn;
+      <a href="%l_url1;t=mm">[year/month/day]1 [birth] = [year/month/day]1 [death] ?</a>%nn;
+    </div>
+  %end;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      %if;(evar.t1 = "A")[*ancestors]%else;[*descendants]%end;
+    %and;
+      %self; %dates;
+    %end;
+  </h1>
+%end;
+
+%define;body2()
+  %if;not cancel_links;
+    %include.t__menubar;
+    %base_trailer;
+    %copyright;
+  %end;
+%end;
+
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <form name="tools" method="get" action="%action;">
+    <div>
+      <label>[*generation/generations]1 <input id="v" name="v" type="number" class="number" size="1" value="%l_v;"
+        autocomplete="off" placeholder="1" autofocus="on" %laX; %/></label>
+    </div>
+    <div class="s_menu">
+      %hidden;
+      <input type="hidden" name="t" value="%evar.t;"%/>
+      <input type="hidden" name="t1" value="%evar.t1;"%/>
+      %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+        <input type="hidden" name="p" value="%evar.p;"%/>
+        <input type="hidden" name="n" value="%evar.n;"%/>
+        <input type="hidden" name="oc" value="%evar.oc;"%/>
+      %end;
+      %if;(evar.i != "")
+        <input type="hidden" name="i" value="%evar.i;"%/>
+      %end;
+      %if;(evar.t1 = "A")
+        <label><input type="checkbox" name="only" value="on" %l_on;
+          %if;(evar.only = "on") checked="checked"%end;%/>[only the generation selected]</label>
+      %end;
+      <label><input type="checkbox" name="cgl" value="on" %l_on;
+        %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+      <input type="submit" value="Ok"%/>
+    </div>
+  </form>
+  %if;(evar.t1 = "A")
+    %if;(has_children)
+      <span>
+        <a href="%l_url;v=%l_v;;t=%evar.t;;" title="[*descendants]">&darr;&darr;</a>
+      </span>
+    %end;
+  %elseif;(has_parents)
+    <span>
+      <a href="%l_url;v=%l_v;;t=%evar.t;;t1=A" title="[*ancestors]">&uarr;&uarr;</a>
+    </span>
+  %end;
+%end;
+
+%define;stat1a(z1,z2,z3,z4)
+  %reset_count;
+  %foreach;sorted_list_item;
+    %if;(prev_item.2 != item.2 or prev_item.1 != item.1)
+      %reset_count;%incr_count;
+      <a href="%prefix;spouse=on;i%count;=%item.3;;t%count;=%count;;%nn;
+    %end;
+    %if;(prev_item.2 = item.2 and prev_item.1 = item.1)
+      %incr_count;
+      i%count;=%item.3;;t%count;=%count;;%nn;
+    %end;
+    %if;(next_item.2 != item.2 or next_item.1 != item.1)
+      %let;l1;%expr(item.2 + z1)%in;
+      %let;l2;%if;(count > l_max_width)%l_max_width;%else;%count;%end;%in;
+      %let;l3;%expr(item.2 * 10) ≥ z4 ≤ %expr(item.2 * 10 + 9);%in;
+      %incr_count;
+      i%count;=%index;;t%count;=%l3;%nn;
+      %if;(count > 10)t=daglist;t0=%l3;;i=%index;;%else;m=RLM;%end;"
+      class="z25%item.1;" style="z3:%l1;em;border-width:%l2;px;">%expr(count - 1)</a>
+    %end;
+  %end;
+%end;
+
+%define;stat1b(z1,z2,z3)
+  %reset_count;
+  %foreach;sorted_list_item;
+    %incr_count;
+    %if;(next_item.2 != item.2 or next_item.1 != item.1)
+      %let;l1;%expr(item.2 + z1)%in;
+      %let;l2;%if;(count > l_max_width)%l_max_width;%else;%count;%end;%in;
+      <span class="z25%item.1;" style="z3:%l1;em;border-width:%l2;px;">%count;</span>
+      %reset_count;
+    %end;
+  %end;
+%end;
+
+%define;stat1(z1,z2,z3,z4)
+  %if;(not cancel_links and l_max_dates > count)
+    %apply;stat1a(z1,"z2","z3","z4")
+  %else;
+    %apply;stat1b(z1,"z2","z3")
+  %end;
+%end;
+
+%define;stat2()
+  %let;l_height;%expr(40 + (count *2))%in;
+  <div class="body bcbg1" style="height:%l_height;px;">
+    %reset_count;
+    %foreach;sorted_list_item;
+      %incr_count;
+      %let;l1;%expr(20 + (count * 2))%in;
+      %let;l2;%expr(20 + item.2 * 8)%in;
+      %let;l3;%if;(l2 > 840)840%else;%l2;%end;%in;
+      %if;(count = 1)
+        <span class="date">%item.1;</span>
+        <span class="lev">%level;</span>
+      %end;
+      %if;(next_item.1 = "")<span class="date" style="top:%l1;px;">%item.1;</span>%end;
+      <a href="%prefix;i=%item.4;" style="top:%l1;px;left:%l3;px;color:#%if;(item.3 = 0)36C;%else;F6C%end;;">%item.2;</a>
+    %end;
+  </div>
+%end;
+
+%define;des_a()
+  %reset_count;
+  %reset_desc_level;
+  %empty_sorted_list;
+  %apply;des_a1(0,l_v)
+  %apply;stat_a1()
+  <div class="stat2 bcbg1">
+    %apply;stat_a2()
+    %reset_desc_level;
+    %reset_count;
+    %empty_sorted_list;
+    %apply;des_a2(0,l_v)
+    %apply;stat2()
+  </div>
+%end;

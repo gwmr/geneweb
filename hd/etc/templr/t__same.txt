@@ -1,0 +1,214 @@
+<!-- $Id: ancsosa_same.txt,v 7.00 2016/04/08 15:58:33 mr Exp $ -->
+
+%include.inc_head;
+
+    <script type="text/javascript">
+    <!--
+
+    function computeBC()
+    {
+      var i = 2;
+      while (i > 0)
+      {
+        var t1 = "a" + i;
+        var t2 = "c" + (i - 1) ;
+        var d1 = (document.getElementById(t1)) ? parseInt(document.getElementById(t1).firstChild.data):0;
+        var d2 = (document.getElementById(t2)) ? parseInt(document.getElementById(t2).firstChild.data):0;
+        if (d1 != 0)
+        {
+          var v = 1;
+          var j = d1;
+          while (j > 1)
+          {
+            v = v * 2;
+            j--; 
+          }
+          document.getElementById("b" + i).innerHTML = v;
+          document.getElementById("c" + i).innerHTML = (v + d2);
+          i++;
+        }
+        else
+        {
+          i = 0;
+        }
+      }
+    }
+
+    function computeF()
+    {
+      var i = 2;
+      while (i > 0)
+      {
+        var t1 = "a" + i;
+        var t2 = "e" + i;
+        var t3 = "f" + (i - 1);
+        var d1 = (document.getElementById(t1)) ? parseInt(document.getElementById(t1).firstChild.data):0;
+        var d2 = (document.getElementById(t2)) ? parseInt(document.getElementById(t2).firstChild.data):0;
+        var d3 = (document.getElementById(t3)) ? parseInt(document.getElementById(t3).firstChild.data):0;
+        if (d1 != 0)
+        {
+          var v = 0;
+          var j = d1;
+          while (j > 1)
+          {
+            v = d2 + d3 * 3;
+            j--; 
+          }
+          document.getElementById("f" + i).innerHTML = v;
+          i++;
+        }
+        else
+        {
+          i = 0;
+        }
+      }
+    }
+
+    function compute()
+    {
+      computeBC();
+      computeF();
+    }
+    -->
+    </script>
+</head>
+
+%let;l_v0;%if;(evar.v != "")%evar.v;%else;7%end;%in;
+%let;l_v;%if;(bvar.max_anc_level = "")%l_v0;%elseif;(bvar.max_anc_level > l_v0)%l_v0;%else;%bvar.max_anc_level;%end;%in;
+
+%define;tothegen(xx)
+  [*to the %s generation:::xx]%nn;
+%end;
+
+%define;togen1(xx)
+  %if;(xx = 1)[*specify::generation/generations]0%nn;
+  %elseif;(xx = 2)[*to the parents]%nn;
+  %elseif;(xx = 3)[*to the grandparents]%nn;
+  %elseif;(xx = 4)[*to the great-grandparents]%nn;
+  %else;
+    %apply;tothegen%with;
+      %apply;nth([nth (generation)], xx)
+    %end;
+  %end;
+%end;
+
+%define;togen()
+  <p>
+    %if;(evar.only != "on")
+      %apply;togen1(l_v)
+    %else;
+      [*generation/generations]0 %l_v;
+    %end;
+  </p>
+%end;
+
+%define;body1()
+  %message_to_wizard;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      [*ancestors]
+    %and;
+      %self; %dates;
+    %end;
+  </h1>
+%end;
+
+%define;body2()
+  %if;not cancel_links;
+    %include.t__menubar;
+    %base_trailer;
+    %copyright;
+  %end;
+%end;
+
+%define;tools()
+%end;
+
+%define;same()
+  %if;(ancestor.same != "")
+    %incr_count;
+    <li class="li_%ancestor.sex; li_10">%ancestor.anc_sosa; -
+      <a href="%prefix;%ancestor.access;">%ancestor;</a> %ancestor.dates; == 
+      <a href="%prefix;em=R;ei=%index;;i=%ancestor.index;;et=M;spouse=on" title="%ancestor; …[relationship]… %self;">
+      %ancestor.same;</a>
+    </li>
+  %end;
+%end;
+
+%define;same_consang()
+  <p class="highlight">[*display smallest sosa number relative to ancestor] + [*consanguinity]</p>
+  %apply;togen()
+  <table border>
+    <tr>
+      <td>implexes et consanguinité</td>
+      <td>generation</td>
+      <td>nb théorique</td>
+      <td>cumul théorique</td>
+      <td>cumul réel</td>
+      <td>nb implexes</td>
+      <td>cumul implexes</td>
+      <td>nb manquant</td>
+    </tr>
+  %foreach;ancestor_level(l_v)
+    %if;(level > 1)
+    <tr>
+      <td>
+        <ul>
+        %reset_count;
+        %foreach;ancestor
+          %if;(ancestor.same = "" and ancestor.has_consanguinity)
+            <li class="li_%ancestor.sex; li_10">
+              %ancestor.anc_sosa; -
+              <a href="%prefix;%ancestor.access;">%ancestor;</a> %ancestor.dates; :
+              <a href="%prefix;em=R;ei=%ancestor.mother.index;;m=NG;t=PN;select=%ancestor.father.index;;et=A;spouse=on;image=on"
+                 title="[relationship computing], [parents]">
+                 %ancestor.consanguinity;
+              </a><br%/>
+            </li>
+          %end;
+          %apply;same()
+        %end;
+        </ul>
+      </td>
+      <td id="a%level;">%level;</td>
+      <td id="b%level;"></td>
+      <td id="c%level;"></td>
+      <td id="d%level;">%number_of_ancestors.v;</td>
+      <td id="e%level;">%count;</td>
+      <td id="f%level;"></td>
+      <td id="g%level;"></td>
+    </tr>
+    %end;  
+  %end;
+  </table>
+%end;
+
+%define;same_same()
+  %apply;togen()
+  <ul>
+  %foreach;ancestor_level(l_v)
+    <li><span class="highlight">[*generation/generations]0 %level;</span>
+      <ul class="ul_0">
+        <li>%level; ; %number_of_ancestors; ;</li> 
+        %foreach;ancestor
+          %apply;same()
+        %end;
+      </ul>
+    </li>
+  %end;
+  </ul>
+%end;
+
+%( main %)
+<body id="ancsosa" onload="javascript:compute()">
+%apply;body1()
+%(short display smallest sosa number relative to ancestor %)
+
+%if;(bvar.show_consang != "no" or manitou)
+  %apply;same_consang()
+%else;
+  %apply;same_same()
+%end;
+%apply;body2()
+</body>
+</html>

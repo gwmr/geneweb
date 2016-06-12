@@ -1,0 +1,974 @@
+%if;(evar.del = "on")
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+%else;
+  %doctype;
+%end;
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!-- $Id: perso.txt,v 7.00 2016/04/18 22:50:38 mr Exp $ -->
+  <title>%first_name_key;/%surname_key;/%occ; - #%index;%if;(has_sosa) - s%sosa.v;%end;</title>
+  <meta name="robots" content="none"%/>
+  <meta name="format-detection" content="telephone=no"%/>
+  <meta http-equiv="Content-Type" content="text/html; charset=%charset;"%/>
+  <meta http-equiv="Content-Style-Type" content="text/css"%/>
+  <link rel="shortcut icon" href="%image_prefix;/favicon_gwd.png"%/>
+  %include.css;
+  %import;js_perso_accesskey
+  <style type="text/css">
+    %let;lwide1;%bvar.wide;.%evar.wide;%in;
+    %let;lwide;%if;(lwide1 = "yes." or lwide1 = ".yes" or lwide1 = "yes.yes" or lwide1 = "no.yes")yes%else;no%end;%in;
+    %if;(lwide = "yes")
+      .col1,.col2{width:99%%;}
+      .image_sheet{font-size:89%%;}
+    %else;
+       .col1,.col2{width:48.5%%;min-width:290px;}
+       .image_sheet {font-size: 71%%;}
+    %end;
+  </style>
+  %base_header;
+</head>
+%( <!-- Begin define --> %)
+%let;l_ol;%if;(not cancel_links)document.getElementById('acckey').focus();%end;%in;
+%let;birth_symbol;%if;(bvar.birth_symbol != "")%bvar.birth_symbol;%else;&deg;%end;%in;
+%let;death_symbol;%if;(bvar.death_symbol != "")%bvar.death_symbol;%else;&dagger;%end;%in;
+%let;l_child;%if;(bvar.always_surname = "yes" and evar.always_surname != "no")child%else;child_name%end;%in;
+%let;l_hh;%if;(sex=0)[him/her]0%elseif;(sex=1)[him/her]1%else;0%end;%in;
+%let;l_ref;%if;browsing_with_sosa_ref;%sosa_ref.index;%else;%index;%end;%in;
+%let;l_url1;;wide=%evar.wide;;image=%evar.image;;spouse=%evar.spouse;;v=%evar.v;;%in;
+%let;l_on1; onclick="window.open(this.href); return false;" %in;
+%let;l_ldates;
+  %if;wizard;
+    %if;(evar.del="on")
+      title="[delete::person/persons]0"
+      class="nobr del" target="ifr" onclick="javascript:deleted(this);"
+      href="%prefix;m=DEL_IND_OK;i=%nn;
+    %else;
+      title="[modify::person/persons]0"
+      %l_on1;
+      class="nobr"
+      href="%prefix;m=MOD_IND;i=%nn;
+    %end;
+  %else;
+    href="#%nn;
+  %end;
+%in;
+%let;l_lmarriage;
+  %if;(evar.del="on" and wizard)
+    title="[delete::family/families]0"
+    class="del" target="ifr" onclick="javascript:deleted(this);"
+    href="%prefix;m=DEL_FAM_OK;%nn;
+  %elseif;(wizard)
+    title="[modify::family/families]0"
+    %l_on1;
+    href="%prefix;m=MOD_FAM;%nn;
+  %else;
+    href="#%nn;
+  %end;
+%in;
+%let;l_v;%if;(evar.v != "")%evar.v;%else;1%end;%in;
+%define;tools()
+  %let;l_on2;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <form name="tools" method="get" action="%action;">
+    <div>
+      <label>[*generation/generations]0 <input id="v" name="v" type="number" class="number" size="1" value="%l_v;"
+        autocomplete="off" placeholder="1" %laX; %/></label>
+    </div>
+    <div class="s_menu">
+      %hidden;
+      %foreach;env_binding;
+        %if;(
+              env.key = "cgl" or
+              env.key = "dsrc" or
+              env.key = "image" or
+              env.key = "iz" or
+              env.key = "nz" or
+              env.key = "ocz" or
+              env.key = "pz" or
+              env.key = "spouse" or
+              env.key = "templ" or
+              env.key = "v" or
+              env.key = "wide"
+            )
+        %else;
+          <input type="hidden" name="%env.key;" value="%env.val.decoded;" %/>
+        %end;
+      %end;
+      %if;(not cancel_links)
+        <p>%apply;nav_with_sosa_ref(self)</p>
+      %end;
+        %if;(wizard)
+          <label>[*source/sources]0 : [person/persons]1 ([create])
+          <input name="dsrc" value="%evar.dsrc;" size="40" maxlength="300" /></label>
+        %end;
+        <label><input type="checkbox" name="cgl" value="on" %l_on2;
+          %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+        %if;(bvar.no_image_for_visitor != "yes" or friend or wizard)
+          <label><input type="checkbox" name="image" value="on" %l_on2;
+            %if;(evar.image = "on") checked="checked"%end;%/>[image/images]1</label>
+        %end;
+        %if;(bvar.wide = "yes")
+          <label><input type="checkbox" name="wide" value="no" %l_on2;
+            %if;(lwide = "no") checked="checked"%end;%/>[visualize/show/hide/summary]0 &middot;|&middot;</label>
+        %else;
+          <label><input type="checkbox" name="wide" value="yes" %l_on2;
+            %if;(lwide = "yes") checked="checked"%end;%/>[visualize/show/hide/summary]0 &divide;</label>
+        %end;
+      <label><input type="checkbox" name="spouse" value="off" %l_on2;
+        %if;(evar.spouse = "off") checked="checked"%end;%/>[spouses not included]</label>
+      <input type="submit" value="Ok"%/>
+    </div>
+  </form>
+%end;
+%define;init_count(prev_count)
+  %reset_count;
+  %for;i;0;prev_count;
+    %incr_count;
+  %end;
+%end;
+%define;link_dates(xx)
+  %if;(not cancel_links)
+    <a id="xx_%xx.index;" %l_ldates;%xx.index;"
+    >%if;(xx.dates != "")%xx.dates;%else; - %end;</a>%else;%xx.dates;%end;
+%end;
+%define;link_marriage(xx)
+  %if;(not cancel_links)
+    <a id="f%family.index;" %l_lmarriage;i=%family.index;;ip=%index;"
+       >%if;(on_marriage_date != "")&amp;%marriage_date.prec;%marriage_date.year;%else; &amp; %end;
+        %foreach;event;
+          %if;(event.has_spouse and spouse.index = event.spouse.index)
+            %if;(event.name = [divorce event])-%nn;
+              %if;event.has_date;%event.date.prec;%event.date.year;%end;
+            %elseif;(event.name = [separate event])-%nn;
+              %if;event.has_date;%event.date.prec;%event.date.year;%end;
+            %end;
+          %end;
+        %end;
+       </a>
+  %else;
+    &amp;%if;(on_marriage_date != "")%marriage_date.prec;%marriage_date.year;%end;
+    %foreach;event;
+      %if;(event.has_spouse and spouse.index = event.spouse.index)
+        %if;(event.name = [divorce event])-%nn;
+          %if;event.has_date;%event.date.prec;%event.date.year;%end;
+        %elseif;(event.name = [separate event])-%nn;
+          %if;event.has_date;%event.date.prec;%event.date.year;%end;
+        %end;
+      %end;
+    %end;
+  %end;
+%end;
+%define;link_name(xx)
+  %if;(cancel_links or xx.is_restricted)
+    %xx;%nn;
+  %else;
+    <a href="%prefix;%xx.access;%l_url1;">%xx;</a>%nn;
+  %end;
+%end;
+%define;link_name1(xx,yy,zz)
+  %if;(cancel_links or xx.is_restricted)
+    %yy;%nn;
+  %else;
+    <a href="%prefix;%xx.access;%l_url1;" zz>%yy;</a>%nn;
+  %end;
+%end;
+%define;link_image(xx)
+  <a %l_on1; class="image"
+    href="%xx.image_html_url;">
+    <img src="%xx.image_url;" alt="[image/images]0"%/>
+  </a>
+%end;
+%define;somebody(xx)
+  %apply;link_name("xx")
+  %xx.title;
+  %apply;link_dates("xx")
+%end;
+%define;somebody1(xx,yy,zz)
+  %apply;link_name1("xx","yy","zz")
+  %xx.title;
+  %apply;link_dates("xx")
+%end;
+%define;child_long_info(curlev,maxlev)
+  %let;next_chi;chi_%if;(nb_children != child_cnt)%family_cnt;_%expr(child_cnt + 1)%else;1_1%end;%in;
+  %apply;somebody1%with;
+    child%and;
+    %l_child;%and;
+    %if;(curlev = 1)id="chi_%family_cnt;_%child_cnt;"%if;(child.has_sosa) name="sosa" %end;
+      onkeypress="javascript:return acc_key(this,event,'sib_1','spo_%family_cnt;','%next_chi;','child_%child.index;','0','0','0');"
+    %end;
+  %end;
+  %if;(has_families)
+    %if;(evar.image="on")
+      %foreach;family;
+          %if;(evar.spouse != "off")
+            <div class="image_sheet" style="font-size: 80%%;">
+                %if;(spouse.has_image)%apply;link_image("spouse")<br%/>%end;
+                %apply;somebody("spouse")
+            </div>
+          %end;
+          %if;(curlev < maxlev)
+            %if;(has_children)
+              %foreach;child;
+                <div class="image_sheet" style="font-size: 75%%;margin-left: 8%%; border: dashed 1px %highlight;;">
+                  %if;(child.has_image)%apply;link_image("child")<br%/>%end;
+                  %apply;child_long_info(curlev+1,maxlev)
+                </div>
+              %end;
+            %end;
+          %end;
+      %end;
+    %else;
+      %foreach;family;
+        %if;(evar.spouse != "off")
+          <small>
+            %if;(self.sex = 0)
+              %apply;link_marriage("self")
+            %else;
+              %apply;link_marriage("self.spouse")
+            %end;
+            %sp;%apply;somebody("spouse")
+          </small>
+        %end;
+        %if;(curlev < maxlev)
+          %if;(has_children)
+            <ol>
+            %foreach;child;
+              <li class="li_%sex; li_%has_families;%has_sosa;">%apply;child_long_info(curlev+1,maxlev)</li>
+            %end;
+            </ol>
+          %end;
+        %end;
+      %end;
+    %end;
+  %end;
+%end;
+%define;children_list()
+  %if;has_children;
+    %if;(evar.image="on")
+      %foreach;child;
+        <div class="image_sheet">
+          %if;(has_image)%apply;link_image("self")<br%/>%end;
+          %apply;child_long_info(1,l_v)
+        </div>
+      %end;
+    %else;
+      <ol>
+      %foreach;child;
+        <li class="li_%sex; li_%has_families;%has_sosa;">
+          %apply;child_long_info(1,l_v)
+        </li>
+      %end;
+      </ol>
+    %end;
+  %end;
+%end;
+%define;advanced(z1,z2)
+  %if;(not cancel_links and bvar.hide_advanced_request != "yes")
+    %let;x1;
+      %prefix;m=H;v=advanced;focus=z1;birth1_yyyy=%birth_date.year;;death2_yyyy=%death_date.year;;z1=%nn;
+    %in;
+    <a class="date" href="javascript:;" onclick="adv('%x1;',this)" title="[advanced request]">z2</a>%nn;
+  %else;
+    z2%nn;
+  %end;
+%end;
+%define;content_family(xx,yy)
+  %if;(evar.image="on")
+    <div class="image_sheet">
+      %if;(xx.has_image)%apply;link_image("xx")<br%/>%end;
+      %xx;%xx.title; %xx.dates;
+    </div>
+    <div class="image_sheet">
+      %if;(xx.sex = 0)
+        %apply;link_marriage("xx")
+      %else;
+        %apply;link_marriage("xx.spouse")
+      %end;
+    </div>
+    <div class="image_sheet" style="clear:right;">
+      %if;(yy.has_image)%apply;link_image("yy")<br%/>%end;
+      %apply;somebody1%with;yy%and;yy%and;%end;
+    </div>
+  %else;
+    %let;next_spo;spo_%if;(nb_families != family_cnt)%expr(family_cnt + 1)%else;1%end;%in;
+    %if;(xx.sex = 0)
+      %apply;link_marriage("xx")
+    %else;
+      %apply;link_marriage("xx.spouse")
+    %end;%sp;
+    %apply;somebody1%with;
+      yy%and;
+      yy%and;
+      id="spo_%family_cnt;"
+      onkeypress="javascript:return acc_key(this,event,'sib_1','%next_spo;','chi_%family_cnt;_1','spouse_%spouse.index;','0','0','f%family.index;');"
+    %end;
+  %end;
+  %apply;children_list()
+%end;
+%define;parents(z1,z2,z3)
+  %foreach;ancestor_level(z1)
+    %if;(level = z1)
+      %foreach;ancestor;
+        %if;(ancestor.anc_sosa = z3 or ancestor.anc_sosa = z3 + 1)
+          %let;l_sosa;%ancestor.anc_sosa;%in
+          <span %if;(ancestor.has_sosa)class="color_sosa"%end;>
+            z2
+            %if;(ancestor.has_siblings)
+              &diams;
+            %elseif;(ancestor.has_parents)
+              &loz;
+            %elseif;(wizard and not cancel_links)
+              <a id="add_par_%l_sosa;" href="%prefix;m=ADD_PAR;ip=%ancestor.index;"
+                 title="[add::parents] (L)" %l_on1;><span class="add">--</span></a>
+            %else;
+              --
+            %end;
+          </span>
+          %apply;link_name1%with;
+            ancestor%and;
+            ancestor%and;
+            id="par_%l_sosa;"
+            onkeypress="javascript:return acc_key(this,event,'sib_1','spo_1','chi_1_1','ancestor_%ancestor.index;','add_par_%l_sosa;','par_%l_sosa;','par_%l_sosa;');"
+          %end;
+          %apply;link_dates("ancestor")
+          <br%/>
+        %end;
+      %end;
+    %end;
+  %end;
+%end;
+%define;anc_families()
+  %if;has_parents;
+    <div>
+      <h2 class="ch2">[*ancestors]</h2>
+      %if;(l_v > 1)
+        %if;father.has_parents;
+          <small>
+            %if;father.father.has_parents;%apply;parents(4,"        ",8)%end;
+            %apply;parents(3,"    ",4)
+            %if;father.mother.has_parents;%apply;parents(4,"        ",10)%end;
+          </small>
+        %end;
+        %apply;parents(2,"",2)
+        %if;mother.has_parents;
+          <small>
+            %if;mother.father.has_parents;%apply;parents(4,"        ",12)%end;
+            %apply;parents(3,"    ",6)
+            %if;mother.mother.has_parents;%apply;parents(4,"        ",14)%end;
+          </small>
+        %end;
+      %else;
+        %if;father.has_parents;<small>%apply;parents(3,"    ",4)</small>%end;
+        %apply;parents(2,"",2)
+        %if;mother.has_parents;<small>%apply;parents(3,"    ",6)</small>%end;
+      %end;
+    </div>
+    %if;(father.nb_children > 1 or mother.nb_children > 1)
+      <div>
+      <h2 class="ch2">[*full siblings]</h2>
+        <ol>
+          %foreach;father.child;
+            <li class="li_%sex; li_%has_families;%has_sosa;">
+              %if;is_self;<em>%end;
+              %let;next_sib;sib_%expr(child_cnt + 1)%in;
+              %apply;link_name1%with;
+                child%and;
+                %l_child;%and;
+                id="sib_%child_cnt;"
+                onkeypress="javascript:return acc_key(this,event,'%next_sib;','spo_1','chi_1_1','child_%child.index;','0','0','0');"
+              %end;
+              %if;is_self;</em>%end;
+              %apply;link_dates("child")
+            </li>
+          %end;
+        </ol>
+        %foreach;father.family;
+          %if;(spouse.index != mother.index)
+            %if;has_children;
+              <ol>
+                <li>[*on %s's side:::] %father; [and] %apply;somebody("spouse") :</li>
+                %foreach;child;
+                  <li class="li_%sex; li_%has_families;%has_sosa;">
+                    %if;is_self;<em>%end;
+                    %let;next_sib;sib_%expr(child_cnt + 1)%in;
+                    %apply;link_name1%with;
+                      child%and;
+                      %l_child;%and;
+                    %end;
+                    %if;is_self;</em>%end;
+                    %apply;link_dates("child")
+                  </li>
+                %end;
+              </ol>
+            %end;
+          %end;
+        %end;
+        %foreach;mother.family;
+          %if;(spouse.index != father.index)
+            %if;has_children;
+              <ol>
+                <li>[*on %s's side:::] %mother; [and] %apply;somebody("spouse") :</li>
+                %foreach;child;
+                  <li class="li_%sex; li_%has_families;%has_sosa;">
+                    %if;is_self;<em>%end;
+                    %let;next_sib;sib_%expr(child_cnt + 1)%in;
+                    %apply;link_name1%with;
+                      child%and;
+                      %l_child;%and;
+                    %end;
+                    %if;is_self;</em>%end;
+                    %apply;link_dates("child")
+                  </li>
+                %end;
+              </ol>
+            %end;
+          %end;
+        %end;
+      </div>
+    %end;
+  %elseif;(wizard and not cancel_links and first_name != "?" and surname != "?")
+     <div class="fam2 button">
+       <a id="add_par" href="%prefix;m=ADD_PAR;ip=%index;" %laL;
+          %l_on1;>[add::parents]</a>
+     </div>
+  %end;
+%end;
+%define;lex(xx,yy)
+  %if;(yy = 0)[xx]0%elseif;(yy = 1)[xx]1%else;[xx]2%end;
+%end;
+%define;relations_tree(z1)
+    %reset_count;
+    <a href="%prefix;spouse=on;m=RLM;image=%evar.image;;%nn;
+      %foreach;relation;
+        %if;(has_relation_him)
+          %incr_count;i%count;=%relation_him.index;;t%count;=%relation_him.type;;%nn;
+          %incr_count;%nn;
+          i%count;=z1;%nn;
+        %end;
+        %if;(has_relation_her)
+          %incr_count;i%count;=%relation_her.index;;t%count;=%relation_her.type;;%nn;
+          %incr_count;%nn;
+          i%count;=z1;%nn;
+        %end;
+      %end;
+      %foreach;related;
+        %incr_count;i%count;=%related.index;;t%count;=%related_type;;%nn;
+        %incr_count;%nn;
+        i%count;=z1;%nn;
+      %end;
+      %foreach;event_witness_relation;
+        %incr_count;%nn;
+        i%count;=%event_witness_relation.person.index;;%nn;
+        t%count;=%event_witness_relation.event.name;;%nn;
+        %incr_count;%nn;
+        i%count;=z1;%nn;
+      %end;
+      %incr_count;%nn;
+      i%count;=%index;;%nn;
+      t%count;=%l_hh;;%nn;
+      %if;browsing_with_sosa_ref;
+        %incr_count;%nn;
+        i%count;=%sosa_ref.index;;%nn;
+        t%count;=sosa_1;%nn;
+      %end;
+    "
+     >[*tree]</a>%nn;
+     %reset_count;
+%end;
+%define;age_at(xx)
+  [age at %s birth date:::xx]%nn;
+%end;
+%define;nav_with_sosa_ref(xx)
+  <a id="nav_sosa_ref"
+    %if;(sosa = 1)
+      style="text-decoration:line-through"
+      href="%prefix_no_iz;%self.access;%l_url1;"
+    %else;
+      %if;(bvar.access_by_key="yes")
+        href="%prefix_no_iz;pz=%first_name_key;;nz=%surname_key;;ocz=%occ;;%self.access;%l_url1;"
+      %else;
+        href="%prefix_no_iz;iz=%self.index;;%self.access;%l_url1;"
+      %end;
+    %end;
+       %laS;>[*navigation with %t as Sosa reference:::xx]</a> %lcS;
+%end;
+%define;link_s(z1,z2)
+  %if;cancel_links;z2%nn;
+  %else;
+    %let;x1;
+      %prefix;m=S;z1=%nn;
+    %in;
+    <a href="javascript:;" onclick="javascript:adv1('%x1;',this)" title="[search/case sensitive]0">z2</a>%nn;
+  %end;
+%end;
+%define;nb_days(xx)
+  %apply;nth%with;
+    /31/28/31/30/31/30/31/31/30/31/30/31%and;
+    xx%end;
+%end;
+%define;compute_age1(z1,z2,z3)
+  %if;(z1 > 0)
+    %if;(z1 = 1)[one year old]%else;z1 [years old]%end;
+    %if;(z2 > 0 or z3 > 0), %end;
+  %end;
+  %if;(z2 > 0)
+    %if;(z2 = 1)[one month old]%else;z2 [months old]%end;
+    %if;(z3 > 0), %end;
+  %end;
+  %if;(z3 > 0)
+    %if;(z3 = 1)[one day old]%else;z3 [days old]%end;
+  %end;
+%end;
+%define;compute_age(z1,z2)
+  %let;l1;%apply;nb_days(z2.month)%in;
+  %if;(z1.month > z2.month)
+    %if;(z1.day >= z2.day)
+      %apply;compute_age1(z1.year - z2.year,z1.month - z2.month,z1.day - z2.day)
+    %else;
+      %apply;compute_age1(z1.year - z2.year,z1.month - z2.month - 1,l1 + z1.day - z2.day)
+    %end;
+  %end;
+  %if;(z1.month = z2.month)
+    %if;(z1.day >= z2.day)
+      %apply;compute_age1(z1.year - z2.year,0,z1.day - z2.day)
+    %elseif;(z1.year > z2.year)
+      %apply;compute_age1(z1.year - z2.year - 1,11,l1 + z1.day - z2.day)
+    %end;
+  %end;
+  %if;(z1.month < z2.month and z1.year > z2.year)
+    %if;(z1.day >= z2.day)
+      %apply;compute_age1(z1.year - z2.year - 1,12 + z1.month - z2.month,z1.day - z2.day)
+    %else;
+      %apply;compute_age1(z1.year - z2.year - 1,11 + z1.month - z2.month,l1 + z1.day - z2.day)
+    %end;
+  %end;
+%end;
+%define;on_edate(z1)
+  · %z1.on_date;
+  %if;(bvar.event_age = "yes" and event.age != "" and event.name != [death]) · %event.age;%nn;
+  %elseif;(event.name = [birth] and computable_age)
+    %if;(birth_date.prec = "" and today.year >= birth_date.year and birth_date.day != "")
+      %sp;· %apply;compute_age("today","birth_date")
+    %else;
+      %sp;· %age;
+    %end;
+    %if;birthday;
+      %sp;([happy birthday to you!])
+    %end;
+  %elseif;(event.age != "" and event.name = [death])
+    %if;(birth_date.prec = "" and death_date.prec = ""
+         and birth_date.day != "" and death_date.day != ""
+         and death_date.year >= birth_date.year)
+      %sp;· %apply;compute_age("death_date","birth_date")
+    %else;
+      %sp;· %event.age;
+    %end;
+  %end;
+%end;
+%define;timeline_tree(z1)
+  %reset_count;
+  <div class="menu" style="position: relative;">
+  <span><a href="%prefix;spouse=on;m=RLM;image=%evar.image;;%nn;
+  %foreach;event;
+    %if;event.has_witnesses;
+      %foreach;event_witness;
+        %incr_count;i%count;=%event_witness.index;;t%count;=%event.name;;%nn;
+        %incr_count;%nn;
+        i%count;=z1;%nn;
+      %end;
+    %end;
+  %end;
+  %incr_count;%nn;
+  i%count;=%index;;%nn;
+  t%count;=%l_hh;;%nn;
+  %if;browsing_with_sosa_ref;
+    %incr_count;%nn;
+    i%count;=%sosa_ref.index;;%nn;
+    t%count;=sosa_1;%nn;
+  %end;
+  "
+  %if;(count < 3)style="display:none;"%end;
+  >[*tree]</a></span>
+  %reset_count;
+  %if;(has_linked_pages)
+    <span><a href="%prefix;m=LINKED;%access;">[*linked pages]</a></span>
+  %end;
+  </div>
+%end;
+%define;birth_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %apply;advanced("birth_place",event.place)%end;
+  </dt>
+  %if;(bvar.event_age = "yes" and has_parents)
+    <dd>
+      %apply;a_of_b%with;
+        %if(is_male)[*son/daughter/child]0%elseif;(is_female)[*son/daughter/child]1%else;[son/daughter/child]2%end;
+      %and;
+        %father;
+        %if;(father_age_at_birth != "") <span class="nobr">(%father_age_at_birth;)</span>%end;
+        %sp;[and]%sp;
+        %mother;
+        %if;(mother_age_at_birth != "") <span class="nobr">(%mother_age_at_birth;)</span>%end;
+      %end;
+    </dd>
+  %end;
+%end;
+%define;baptism_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %apply;advanced("bapt_place",event.place)%end;
+  </dt>
+%end;
+%define;death_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %apply;advanced("death_place",event.place)%end;
+  </dt>
+  %if;has_linked_page.DEATH;<dd>%linked_page.DEATH;</dd>%end;
+%end;
+%define;burial_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %apply;advanced("burial_place",event.place)%end;
+  </dt>
+%end;
+%define;marriage_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %apply;advanced("marriage_place",event.place)%end;
+    %if;event.has_spouse; · [with] %event.spouse;%end;
+  </dt>
+%end;
+%define;other_event()
+  <dt>
+    %apply;capitalize(event.name)
+    %if;event.has_date; %apply;on_edate("event")%end;
+    %if;event.has_place; · %event.place;%end;
+    %if;event.has_spouse; · [with] %event.spouse;%end;
+  </dt>
+%end;
+%define;one_event(z1)
+  %if;("z1" = [birth])%apply;birth_event()
+  %elseif;("z1" = [baptism])%apply;baptism_event()
+  %elseif;("z1" = [death])%apply;death_event()
+  %elseif;("z1" = [burial])%apply;burial_event()
+  %elseif;("z1" = [marriage/marriages]0)%apply;marriage_event()
+  %else;%apply;other_event()
+  %end;
+  %if;event.has_witnesses;
+    <dd>[*witness/witnesses]1 :
+    %foreach;event_witness;
+      %if;(not is_first), %nl;%end;
+      %apply;somebody("event_witness")
+      %( <!-- Begin personalization mickroue --> %)
+        %if;(event_witness.has_qualifiers and event_witness.title=", <em>Cousin</em>")
+            <a %l_on1;
+            <strong><a %l_on1;
+             href="http://geneaweb.org/%event_witness.qualifier;?templ=mobile;m=N;v=%surname;"
+             title="Arbre en ligne sur Geneanet">@</a>%nn;
+        %end;%nn;
+      %( <!-- End personalization mickroue --> %)
+    %end;
+    </dd>
+  %end;
+  %if;event.has_note;
+    <dd>%event.note;</dd>
+  %end;
+%end;
+%define;timeline()
+  <div class="event">
+    %if;has_occupation;
+      <span class="highlight1">%apply;advanced%with;occu%and;%apply;capitalize(occupation)%end;</span>%nn;
+    %end;
+    %if;(has_linked_pages and has_linked_page.OCCU)
+      %if;has_occupation;, %end;%linked_page.OCCU;
+    %end;
+    <dl>
+      %foreach;event;
+        %apply;one_event(event.name)
+      %end;
+    </dl>
+  </div>
+  %if;not cancel_links;%apply;timeline_tree(l_ref)%end;
+%end;
+%( <!-- End define --> %)
+<body%body_prop; id="perso"%if;(evar.del != "on") onload="%l_ol;"%end;>%nn;
+<div onclick="void(0);">%( the magic Safari div %)
+%message_to_wizard;
+%if;(evar.del = "on")<h1 class="del">[*delete::]… [person/persons]1… [family/families]1…</h1>
+  %if;(wizard and bvar.can_kill_ancestors="yes")
+    <p><strong>/!\ can_kill_ancestors=yes   </strong>
+       <a class="del" href="%prefix;m=KILL_ANC;i=%index;" target="ifr"
+          onclick="javascript:deleted(this);" title="[delete::ancestors]0">%nn;
+          %self; <em>/!\ [delete::ancestors]0 /!\</em></a>
+       <strong>   can_kill_ancestors=yes /!\</strong>
+    </p>
+  %end;
+%end;
+<div class="col1">
+%( <!-- Begin display image, person --> %)
+  <div class="person">
+    <h1 class="ch1 h1_%sex; h1_%has_families;%has_sosa;">
+      %if;(has_public_name)
+        %apply;link_s("n",public_name)
+      %else;
+        %if;cancel_links;%first_name;%else;<a href="%prefix;m=S;p=%first_name_key;">%first_name;</a>%end;
+      %end;
+      %sp;
+      %if;has_qualifiers;<em>%qualifier;</em> %end;
+      %if;cancel_links;%surname;
+      %else;<a href="%prefix;m=S;n=%surname_key;">%surname;</a>
+      %end;
+      <small>%apply;link_dates("self")</small>
+    </h1>
+    %if;has_image;
+    <div>
+     <a %l_on1; href="%image_html_url;">
+       <img class="person_img" src="%image_url;" alt="[image/images]0"%/>
+     </a>
+    </div>
+    %end;
+    <p class="data1">
+      %if;has_nobility_titles;
+        <br%/><em>%foreach;nobility_title;%nobility_title;<br%/>%end;</em>
+      %end;
+      %if;(has_linked_pages and has_linked_page.HEAD)%linked_page.HEAD;<br%/>%end;
+      %if;has_qualifiers;
+        <br%/>
+        %apply;lazy_print("")
+        %foreach;qualifier;
+          %( <!-- Begin personalization mickroue --> %)
+            %if;is_first;
+              %if;(title=", <em>Cousin</em>")
+                <strong><a %l_on1; href="http://geneaweb.org/%qualifier;?templ=mobile;m=N;v=%surname;" title="Arbre en ligne sur Geneanet">Arbre en ligne</a></strong><br%/>
+              %end;
+            %end;
+          %( <!-- End personalization mickroue --> %)
+          %if;not is_first;
+             %if;(lazy_printed)/%end;
+             %lazy_force;
+             %apply;link_s("n",qualifier)%nn;
+          %end;
+        %end;
+      %end;
+      %if;has_aliases;
+        %apply;lazy_print("")
+        <br%/>
+        <em><strong>%nn;
+        %foreach;alias;
+          %if;(lazy_printed)/%end;
+          %lazy_force;
+          %apply;link_s("n",alias)%nn;
+        %end;
+        </strong></em>
+      %end;
+      %if;(has_public_name or has_qualifiers)
+        <br%/>
+        <em>
+        (%apply;link_s("p",first_name)%sp;
+        %apply;link_s("n",surname))
+        </em>
+      %end;
+      %if;has_first_names_aliases;
+        %apply;lazy_print("")
+        <br%/>
+        %foreach;first_name_alias;
+          %if;(lazy_printed)/%end;
+          %lazy_force;
+          %apply;advanced("first_name",first_name_alias)%nn;
+        %end;
+      %end;
+      %if;has_surnames_aliases;
+        %apply;lazy_print("")
+        <br%/>
+        %foreach;surname_alias;
+          %if;(lazy_printed)/%end;
+          %lazy_force;
+          %apply;link_s("n",surname_alias)%nn;
+        %end;
+      %end;
+    </p>
+    <p>
+    </p>
+  </div>
+  %apply;timeline()
+%( <!-- End display image, person --> %)
+  %if;(bvar.mickroue2 = "yes" and (has_linked_pages or wizard))
+    %include.perso_mickroue2;
+  %end;
+%( <!-- Begin display relations, notes, sources --> %)
+  %if;(has_relations)
+    %if;(bvar.mickroue1 = "yes")
+      %include.perso_mickroue1;
+    %else;
+      <div class="relations">
+        <h2 class="ch2">[*relation/relations]1</h2>
+        <ul>
+          %foreach;relation;
+            <li><em>%apply;capitalize(relation_type)</em> :
+                %if;has_relation_him;
+                  %apply;somebody("relation_him")
+                  %if;has_relation_her; [and] %end;
+                %end;
+                %if;has_relation_her;
+                  %apply;somebody("relation_her")
+                %end;
+            </li>
+          %end;
+          %foreach;related;
+            <li><em>%apply;capitalize(related_type)</em> :
+              %apply;somebody("related")
+            </li>
+          %end;
+          %foreach;event_witness_relation;
+            <li><em>%apply;capitalize(event_witness_relation.event.name)
+              %if;event_witness_relation.event.has_date; %apply;on_edate("event_witness_relation.event")%end;
+              %if;event_witness_relation.event.has_place; · %event_witness_relation.event.place;%end;</em> :
+              %apply;somebody("event_witness_relation.person")
+              %if;(event_witness_relation.event.spouse != "") [and] %apply;somebody("event_witness_relation.event.spouse")%end;
+            </li>
+          %end;
+        </ul>
+      </div>
+      %if;not cancel_links;<div class="menu" style="position:relative">%apply;relations_tree(l_ref)</div>%end;
+    %end;
+  %end;
+  <div class="notes">
+    %if;(has_notes or has_linked_page.BNOTE or has_linked_page.NOTE)
+      <h2 class="ch2">[*note/notes]1</h2>
+      %if;(has_linked_page.BNOTE)
+        <p>&gt;&gt; %linked_page.BNOTE;</p>
+      %end;
+      %notes;
+      %if;(has_linked_page.NOTE)
+        <p>&gt;&gt; %linked_page.NOTE;</p>
+      %end;
+    %end;
+  </div>
+  %if;has_families;
+    %foreach;family()
+      %if;has_comment;
+        <div class="comment">
+          <h2 class="ch2">[*marriage with] %spouse;</h2>
+          %comment;
+        </div>
+      %end;
+    %end;
+  %end;
+  %apply;lazy_print%with;
+    <div class = "sources">
+      <h2 class="ch2">[*source/sources]1</h2>
+      <ul>
+  %end;
+  %if;(has_sources or has_linked_page.BIBLIO)
+    %if;(has_linked_page.BIBLIO)%lazy_force;<li>&gt;&gt; %linked_page.BIBLIO;</li>%end;
+    %foreach;source;
+      %if;(source_type = [person/persons]0 or source_type = [family/families]0)
+        %lazy_force;
+        <li><em>%apply;capitalize(source_type)</em> : %source;</li>
+      %end;
+    %end;
+  %end;
+  %foreach;event()
+    %if;event.has_src;
+      %lazy_force;
+      <li>
+        <em>%apply;capitalize(event.name)
+        %if;(event.has_spouse) [with] %event.spouse;%end;</em> :
+        %event.src;
+      </li>
+    %end;
+  %end;
+  %if;lazy_printed;
+      </ul>
+    </div>
+  %end;
+%( <!-- End display relations, notes, sources --> %)
+</div>
+<div class="col2">
+  <hr %if;(lwide = "no")style="display:none"%end; %/>
+  %( <!-- Begin display sosa consang nb ancestors nb descendants --> %)
+  <div class="consang">
+    %if;(browsing_with_sosa_ref)
+      %if;(has_sosa and sosa != 1)
+        %let;l_sosa_ref;
+          %apply;a_of_b%with;
+            %and;
+            %apply;link_name("sosa_ref")
+          %end;
+        %in;
+        %if;cancel_links;
+          [*Sosa] %sosa; %l_sosa_ref;
+        %else;
+          <a href="%prefix;m=A;t=D;image=%evar.image;;i=%sosa_ref.index;;i1=%index;;l=50" title="%apply;a_of_b%with;[ancestors]%and;%sosa_ref;%end; [up to] %self;">[*Sosa] %sosa;</a> %l_sosa_ref;%nn;
+        %end;
+      %elseif;(sosa = 1)
+        <a href="%prefix_no_iz;%self.access;%l_url1;">[*Sosa] 1</a>
+      %end;
+    %end;
+  </div>
+  %( <!-- End display sosa consang nb ancestors nb descendants --> %)
+%( <!-- Begin display families --> %)
+    %apply;anc_families()
+    %if;has_families;
+      <div>
+        <h2 class="ch2">[*descendants]</h2>
+        %foreach;family;
+          <div class="fam">
+            %if;(wizard and not cancel_links and family_cnt != 1)
+              %if;(family_cnt != 1)
+                <span class="button"><a href="%prefix;m=INV_FAM;i=%index;;f=%family.index;
+                " title="[invert::family/families]0">^</a></span>
+                %if;(family.father.index = prev_family.father.index
+                  and family.mother.index = prev_family.mother.index)
+                  <span class="button"><a href=%nn;
+                  "%prefix;m=MRG_FAM;i=%prev_family.index;;i2=%family.index;
+                  ;ip=%index;">%nn;
+                  [*merge::]</a></span>
+                %end;
+              %end;
+            %end;
+            %apply;content_family("self","spouse")
+            %if;(evar.opt = "from" and wizard)<em>(%origin_file;)</em>%nl;%end;
+            %if;(evar.image = "on" and nb_families > 1)<hr style="clear:both;"%/>%end;
+          </div>
+        %end;
+      </div>
+    %else;
+      %if;(wizard and not cancel_links)
+        <div class="button">
+          %if;((first_name = "?" or surname = "?") and (nb_families != 0 or has_parents))
+          %elseif;(is_male or is_female)
+            <a href="%prefix;m=ADD_FAM;ip=%index;" title="[add::family/families]0 (A)" %l_on1;>[add::family/families]0</a>
+            <br%/>
+          %end;
+        </div>
+      %end;
+    %end;
+%( <!-- End display families --> %)
+</div>
+%( <!-- Begin display menu --> %)
+
+%if;not cancel_links;
+  %include.t__menubar;
+%end;
+
+%if;(evar.del="on")
+  <iframe style="position:fixed;bottom:0px;right:0px;width:400px;height:120px;background-color:#AAA;" name="ifr">
+    <p>The browser does not like IFRAME ! Error $*^ù¤£ùµ€~èàçé</p>
+  </iframe>
+%end;
+
+<div style="clear:both;">
+  %base_trailer;
+  %copyright;
+</div>
+</div>%( the magic Safari div %)
+</body>
+</html>

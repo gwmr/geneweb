@@ -1,0 +1,12 @@
+%doctype;
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!-- $Id: inc_head.txt,v 7.00 2016/04/19 21:18:57 mr Exp $ -->
+  <title>%first_name; %surname;</title>
+  <meta name="robots" content="none"%/>
+  <meta name="format-detection" content="telephone=no"%/>
+  <meta http-equiv="Content-Type" content="text/html; charset=%charset;"%/>
+  <meta http-equiv="Content-Style-Type" content="text/css"%/>
+  %include.css;
+  %base_header;
+  <link rel="shortcut icon" href="%image_prefix;/favicon_gwd.png"%/>

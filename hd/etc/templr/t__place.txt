@@ -1,0 +1,101 @@
+%( list eclair t = place %)
+
+%include.inc_head;
+
+<!-- $Id: t__place.txt,v 7.00 2016/05/03 21:32:50 mr Exp $ -->
+</head>
+%let;l_v;%if;(evar.v != "")%evar.v;%else;7%end;%in;
+
+%define;body1()
+  %message_to_wizard;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      [*ancestors]
+    %and;
+      %self; %dates;
+    %end;
+    <br%/>[list eclair]0 - [places]
+  </h1>
+%end;
+
+%define;body2()
+  %if;not cancel_links;
+    %include.t__menubar;
+    %base_trailer;
+    %copyright;
+  %end;
+%end;
+
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <form name="tools" method="get" action="%action;">
+    <div>
+      <label>[*generation/generations]1 <input id="v" name="v" type="number" class="number" size="1" value="%l_v;"
+        autocomplete="off" placeholder="1" autofocus="on" %laX; %/></label>
+    </div>
+    <div class="s_menu">
+      %hidden;
+      <input type="hidden" name="t" value="%evar.t;"%/>
+      %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+        <input type="hidden" name="p" value="%evar.p;"%/>
+        <input type="hidden" name="n" value="%evar.n;"%/>
+        <input type="hidden" name="oc" value="%evar.oc;"%/>
+      %end;
+      %if;(evar.i != "")
+        <input type="hidden" name="i" value="%evar.i;"%/>
+      %end;
+      <label><input type="checkbox" name="cgl" value="on" %l_on;
+        %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+      <label><input type="checkbox" name="only" value="on" %l_on;
+        %if;(evar.only = "on") checked="checked"%end;%/>[only the generation selected]</label>
+      <input type="submit" value="Ok"%/>
+    </div>
+  </form>
+%end;
+
+<body%body_prop; id="anclist">
+  %apply;body1()
+  %empty_sorted_list;
+  %reset_count;
+  %foreach;ancestor_level(l_v)
+    %if;(level > 1 and (evar.only != "on" or level = l_v))
+      %foreach;ancestor;
+        %if;(ancestor.same = "")
+          %if;(ancestor.has_birth_place)
+            %apply;add_in_sorted_list(ancestor.birth_place,ancestor.birth_date.year,ancestor.index,ancestor.anc_sosa)
+          %elseif;(ancestor.has_baptism_place)
+            %apply;add_in_sorted_list(ancestor.baptism_place,ancestor.baptism_date.year,ancestor.index,ancestor.anc_sosa)
+          %end;
+          %if;(ancestor.has_death_place)
+            %apply;add_in_sorted_list(ancestor.death_place,ancestor.death_date.year,ancestor.index,ancestor.anc_sosa)
+          %elseif;(ancestor.has_burial_place)
+            %apply;add_in_sorted_list(ancestor.burial_place,ancestor.burial_date.year,ancestor.index,ancestor.anc_sosa)
+          %end;
+          %foreach;ancestor.family;
+            %if;(ancestor.spouse.index = spouse.index and marriage_place != "")
+              %apply;add_in_sorted_list(marriage_place,marriage_date.year,ancestor.index,ancestor.anc_sosa)
+            %end;
+          %end;
+        %end;
+      %end;
+    %end;
+  %end;
+  <p>[place];[date begin];([nb events]);[date end]
+  %foreach;sorted_list_item;
+    %if;(prev_item.1 != item.1)
+      %reset_count;%incr_count;
+      <br%/>%item.1;;%item.2;;<a href="%prefix;spouse=on;i%count;=%item.3;;t%count;=%item.4;;%nn;
+    %end;
+    %if;(prev_item.1 = item.1)
+      %incr_count;
+      i%count;=%item.3;;t%count;=%item.4;;%nn;
+    %end;
+    %if;(next_item.1 != item.1)
+      %incr_count;
+      i%count;=%index;;t%count;=%item.1;;%if;(count > 10)t=daglist;t0=%item.1;;i=%index;;%else;m=RLM;%end;">(%expr(count - 1))</a>;%item.2;
+    %end;
+  %end;
+  </p>
+  %apply;body2()
+</body>
+</html>

@@ -1,0 +1,9 @@
+<!-- $Id: js_upd.txt,v 7.00 2015/11/10 00:06:42 mr Exp $ -->
+
+<script type="text/javascript" src="%bvar.static_path;/templr/js_upd.js"></script>
+%if;(bvar.jquery = "no")
+  <script type="text/javascript" src="%bvar.static_path;/templr/js_upd_jq_no.js"></script>
+%else;
+  <script type="text/javascript" src="%bvar.static_path;/jquery-2.2.0.min.js"></script>
+  <script type="text/javascript" src="%bvar.static_path;/templr/js_upd_jq.js"></script>
+%end;

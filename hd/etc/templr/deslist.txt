@@ -1,0 +1,163 @@
+%doctype;
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!-- $Id: deslist.txt,v 7.00 2015/05/17 11:30:20 mr Exp $ -->
+  <title>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      [*descendants]%nn;
+    %and;
+      %if;(public_name != "")%public_name;%else;%first_name;%end;
+      %if;(qualifier != "") %qualifier;%end;
+      %sp;%surname;
+    %end;
+  </title>
+  <meta name="robots" content="none"%/>
+  <meta name="format-detection" content="telephone=no"%/>
+  <meta http-equiv="Content-Type" content="text/html; charset=%charset;"%/>
+  <meta http-equiv="Content-Style-Type" content="text/css"%/>
+  <link rel="shortcut icon" href="%image_prefix;/favicon_gwd.png"%/>
+  %include.css;
+  %base_header;
+</head>
+
+%( <!-- Begin define --> %)
+%let;l_v0;%if;(evar.v != "")%evar.v;%else;2%end;%in;
+%let;l_v;%if;(bvar.max_desc_level = "")%l_v0;%elseif;(bvar.max_desc_level > l_v0)%l_v0;%else;%bvar.max_desc_level;%end;%in;
+
+%define;tothegen(xx)
+  [*to the %s generation:::xx]
+%end;
+
+%define;togen1(xx)
+  %if;(xx = 0)[*specify::generation/generations]0%nn;
+  %elseif;(xx = 1)[*to the children]%nn;
+  %elseif;(xx = 2)[*to the grandchildren]%nn;
+  %elseif;(xx = 3)[*to the great-grandchildren]%nn;
+  %else;
+    %apply;tothegen%with;
+      %apply;nth([nth (generation)], xx)
+    %end;
+  %end;
+%end;
+
+%define;togen()
+  <p>
+    %if;(evar.only != "on")
+      %apply;togen1(l_v)
+    %else;
+      [*generation/generations]0 %l_v;
+    %end;
+  </p>
+%end;
+
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <hr %/>
+  <form id="tools" name="tools" method="get" action="%action;">
+    <fieldset>
+      <legend>[*tools]0 <input type="submit" value="Ok"%/></legend>
+        %hidden;
+        <input type="hidden" name="m" value="D"%/>
+        %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+          <input type="hidden" name="p" value="%evar.p;"%/>
+          <input type="hidden" name="n" value="%evar.n;"%/>
+          <input type="hidden" name="oc" value="%evar.oc;"%/>
+        %end;
+        %if;(evar.i != "")
+          <input type="hidden" name="i" value="%evar.i;"%/>
+          <input type="hidden" name="i1" value="%evar.i1;"%/>
+        %end;
+        %if;(evar.l != "")
+          <input type="hidden" name="l" value="%evar.l;"%/>
+        %end;
+        <p>
+          <label>[*generation/generations]0
+            <code>(X)</code>
+            <input id="v" name="v" class="number" size="1" value="%l_v;"
+            autocomplete="off" title="[generation/generations]0 (X)" accesskey="X" %/>
+          </label>
+          <label><input type="checkbox" name="cgl" value="on" %l_on;
+          %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+          %if;(evar.tl1 = "" and (bvar.no_image_for_visitor != "yes" or friend or wizard))
+            <label><input type="checkbox" name="image" value="on" %l_on;
+              %if;(evar.image = "on") checked="checked"%end;%/>[image/images]1</label>
+          %end;
+        </p>
+          %if;(evar.t = "L" or evar.t = "M" or evar.t = "F")
+            <fieldset>
+              <legend>
+                <label><input type="radio" name="t" value="L" %l_on;
+                  %if;(evar.t = "L") checked="checked"%end;%/>[*long display]0</label>
+              </legend>
+              <label><input type="radio" name="t" value="M" %l_on;
+                %if;(evar.t = "M") checked="checked"%end;%/>[male line/female line]0</label>
+              <label><input type="radio" name="t" value="F" %l_on;
+                %if;(evar.t = "F") checked="checked"%end;%/>[male line/female line]1</label>
+              %if;(has_sosa)
+                <label style = "display:inline" ><input type="checkbox" name="t1" value="1" %l_on;
+                  %if;(evar.t1= "1") checked="checked"%end;%/>[branch/branches]0 : Sosa</label>
+                <label style = "display:inline" >(<input type="checkbox" name="siblings" value="on" %l_on;
+                  %if;(evar.siblings = "on") checked="checked"%end;%/>[siblings])</label>
+              %end;
+              <label><input type="checkbox" name="nosurn" value="on" %l_on;
+                %if;(evar.nosurn = "on") checked="checked"%end;%/>[first name/first names]0
+                <span style="text-decoration:line-through;"> [surname/surnames]0</span></label>
+              <label><input type="checkbox" name="alias" value="on" %l_on;
+                %if;(evar.alias = "on") checked="checked"%end;%/>[surname alias], [first name alias]</label>
+              <label><input type="checkbox" name="spouse" value="on" %l_on;
+                %if;(evar.spouse = "on") checked="checked"%end;%/>[include spouses]</label>
+              <label><input type="checkbox" name="parents" value="on" %l_on;
+                %if;(evar.parents = "on") checked="checked"%end;%/>[parents]</label>
+              <label><input type="checkbox" name="rel" value="on" %l_on;
+                %if;(evar.rel = "on") checked="checked"%end;%/>[relation/relations]1</label>
+              <label><input type="checkbox" name="witn" value="on" %l_on;
+                %if;(evar.witn = "on") checked="checked"%end;%/>[witness/witnesses]1</label>
+              <label><input type="checkbox" name="notes" value="on" %l_on;
+                %if;(evar.notes = "on") checked="checked"%end;%/>[note/notes]1</label>
+              <label><input type="checkbox" name="src" value="on" %l_on;
+                %if;(evar.src = "on") checked="checked"%end;%/>[source/sources]1</label>
+              <label><input type="checkbox" name="upd" value="on" %l_on;
+                %if;(evar.upd = "on") checked="checked"%end;%/>[update]1</label>
+              <label><input type="checkbox" name="hide" value="on" %l_on;
+                %if;(evar.hide = "on") checked="checked"%end;%/>[visualize/show/hide/summary]2 … </label>
+            </fieldset>
+        %end;
+    </fieldset>
+  </form>
+%end;
+
+%( <!-- End define --> %)
+
+%(   Main   %)
+<body%body_prop; id="deslist">
+  %message_to_wizard;
+  <h1>%nn;
+    %apply;a_of_b_gr_eq_lev%with;
+      [*descendants]
+    %and;
+      %if;(not cancel_links)<a href="%prefix;%access;">%end;
+        %if;(public_name != "")%public_name;%else;%first_name;%end;
+        %if;(qualifier != "") <em>%qualifier;</em>%end;
+        %sp;%surname;
+        %if;(alias != "") <em>(%alias;)</em>%end;
+      %if;(not cancel_links)</a>%end;
+    %end;
+      %sp;%dates;<br%/>
+  </h1>
+  %if;not cancel_links;
+    <div class="menu2">
+      <a href="%prefix;" title="[visualize/show/hide/summary]3">^^</a>
+    </div>
+  %end;
+  %if;(bvar.mickroue1 = "yes")
+    %include.deslist_list_mickroue1;
+  %else;
+    %include.deslist_list;
+  %end;
+  %if;not cancel_links;
+    %apply;tools()
+    %base_trailer;
+    %copyright;
+  %end;
+</body>
+</html>

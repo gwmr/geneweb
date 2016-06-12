@@ -1,0 +1,12 @@
+<!-- $Id: perso.txt,v 7.00 2016/04/19 11:21:29 mr Exp $ -->
+
+%define;show_templ(z1)
+  %include.t__z1;
+%end;
+
+%if;(evar.t != "")
+  %apply;show_templ(evar.t)
+%else;
+  %include.t__perso;
+%end;
+

@@ -1,0 +1,151 @@
+%doctype;
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!-- $Id: anclist.txt,v 7.00 2016/04/18 22:50:00 mr Exp $ -->
+  %let;l_v0;%if;(evar.v != "")%evar.v;%else;7%end;%in;
+  %let;l_v;%if;(bvar.max_anc_level = "")%l_v0;%elseif;(bvar.max_anc_level > l_v0)%l_v0;%else;%bvar.max_anc_level;%end;%in;
+  <title>%first_name; %surname;</title>
+  <meta name="robots" content="none"%/>
+  <meta name="format-detection" content="telephone=no"%/>
+  <meta http-equiv="Content-Type" content="text/html; charset=%charset;"%/>
+  <meta http-equiv="Content-Style-Type" content="text/css"%/>
+  <link rel="shortcut icon" href="%image_prefix;/favicon_gwd.png"%/>
+  %include.css;
+  %base_header;
+</head>
+%(<!-- Begin define --> %)
+%define;tothegen(xx)
+  [*to the %s generation:::xx]%nn;
+%end;
+%define;togen1(xx)
+  %if;(xx = 1)[*specify::generation/generations]0%nn;
+  %elseif;(xx = 2)[*to the parents]%nn;
+  %elseif;(xx = 3)[*to the grandparents]%nn;
+  %elseif;(xx = 4)[*to the great-grandparents]%nn;
+  %else;
+    %apply;tothegen%with;
+      %apply;nth([nth (generation)], xx)
+    %end;
+  %end;
+%end;
+%define;togen()
+  <p>
+    %if;(evar.only != "on")
+      %apply;togen1(l_v)
+    %else;
+      [*generation/generations]0 %l_v;
+    %end;
+  </p>
+%end;
+%define;ancestors_by_list(z1, z2)
+  %if;(z1.has_parents and z2 > 1)
+    <ul>
+    <li style="list-style-type:square"><a href="%prefix;
+    %z1.father.access;">%z1.father;</a>%z1.father.title;%z1.father.dates;%nl;
+    %apply;ancestors_by_list("z1.father", z2 - 1)</li>
+    <li style="list-style-type:circle"><a href="%prefix;
+    %z1.mother.access;">%z1.mother;</a>%z1.mother.title;%z1.mother.dates;%nl;
+    %apply;ancestors_by_list("z1.mother", z2 - 1)</li>
+    </ul>
+  %end;
+%end;
+%define;ancestors_by_list_cgl(z1, z2)
+  %if;(z1.has_parents and z2 > 1)
+    <ul>
+    <li style="list-style-type:square">%z1.father; %z1.father.title;%z1.father.dates;%nl;
+    %apply;ancestors_by_list_cgl("z1.father", z2 - 1)</li>
+    <li style="list-style-type:circle">%z1.mother; %z1.mother.title;%z1.mother.dates;%nl;
+    %apply;ancestors_by_list_cgl("z1.mother", z2 - 1)</li>
+    </ul>
+  %end;
+%end;
+%define;surnames_branch()
+  %apply;togen()
+  <ul>
+  %foreach;ancestor_surname(l_v)
+    <li>%nn;
+    %if;(not cancel_links)
+      <a href="%prefix;m=DAG;%ancestor.sosa_access;">%nn;
+      %ancestor.surname_end;%ancestor.surname_begin;</a>
+    %else;
+      %ancestor.surname_end;%ancestor.surname_begin;
+    %end;
+    %if;(ancestor.nb_times > 1)
+     ; (%ancestor.nb_times;)
+    %end;
+    ; %ancestor.place;%sp;
+    ; %ancestor.date_begin.year;-%ancestor.date_end.year;</li>
+  %end;
+  </ul>
+%end;
+%define;tools()
+  %let;l_on;onclick="this.focus()" onkeydown="if (event.keyCode == 13) javascript:document.tools.submit();"%in;
+  <hr style="clear:both;" %/>
+  <form id="tools" name="tools" method="get" action="%action;">
+    <fieldset>
+      <legend>[*tools]0 <input type="submit" value="Ok"%/></legend>
+      %hidden;
+      <input type="hidden" name="m" value="A"%/>
+      <input type="hidden" name="t" value="%evar.t;"%/>
+      %if;(evar.p != "" or evar.n != "" or evar.oc != "")
+        <input type="hidden" name="p" value="%evar.p;"%/>
+        <input type="hidden" name="n" value="%evar.n;"%/>
+        <input type="hidden" name="oc" value="%evar.oc;"%/>
+      %end;
+      %if;(evar.i != "")
+        <input type="hidden" name="i" value="%evar.i;"%/>
+      %end;
+      <p>
+        <label>[*generation/generations]0 <code>(X)</code> <input id="v" name="v" class="number" size="1" value="%l_v;"
+          autocomplete="off" title="[generation/generations]0 (X)" accesskey="X" %/></label>
+        %if;(evar.t = "F")
+          <label><input type="checkbox" name="only" value="on" %l_on;
+            %if;(evar.only = "on") checked="checked"%end;%/>[only the generation selected]</label>
+        %end;
+        <label><input type="checkbox" name="cgl" value="on" %l_on;
+          %if;(evar.cgl = "on") checked="checked"%end;%/>[cancel GeneWeb links]</label>
+      </p>
+    </fieldset>
+  </form>
+%end;
+%(<!-- End define --> %)
+
+%( main %)
+<body%body_prop; id="anclist">
+%message_to_wizard;
+<h1>%nn;
+  %apply;a_of_b%with;
+    [*ancestors]
+  %and;
+    %if;(not cancel_links)<a href="%prefix;%access;">%end;
+      %if;(public_name != "")%public_name;%else;%first_name;%end;
+      %if;(qualifier != "") <em>%qualifier;</em>%end;
+      %sp;%surname;
+      %if;(alias != "") <em>(%alias;)</em>%end;
+    %if;(not cancel_links)</a>%end;
+  %end;
+  %sp;%dates;<br%/>
+  %if;(evar.t = "F") - [*surnames branch] -%end;
+</h1>
+%if;(not cancel_links)
+  <div class="menu2">
+    <a href="%prefix;" title="[visualize/show/hide/summary]3">^^</a>
+  </div>
+%end;
+%if;(evar.t = "F")
+  %apply;surnames_branch()
+%elseif;(evar.t = "L")
+  %apply;togen()
+  %if;(not cancel_links)
+    %apply;ancestors_by_list("self",l_v)
+  %else;
+    %apply;ancestors_by_list_cgl("self",l_v)
+  %end;
+%end;
+%if;not cancel_links;
+  %apply;tools()
+  %base_trailer;
+  %copyright;
+%end;
+</body>
+</html>
